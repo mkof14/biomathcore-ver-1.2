@@ -1,0 +1,100 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "general-wellness": {
+    "title": "General Wellness",
+    "sections": {
+      "Lifestyle": "Lifestyle",
+      "Sleep & Stress": "Sleep & Stress",
+      "Habits": "Habits"
+    },
+    "questions": {
+      "gender": "Gender",
+      "age": "Age",
+      "height": "Height",
+      "weight": "Weight",
+      "sleep_hours": "Average sleep (hours)",
+      "stress_freq": "How often do you feel stress?",
+      "smoking": "Do you smoke?",
+      "alcohol": "Do you drink alcohol?",
+      "activity": "Regular physical activity?"
+    },
+    "options": {
+      "gender": ["Male","Female","Other","Prefer not to say"],
+      "stress_freq": ["Rarely","Sometimes","Often","Constantly"],
+      "smoking": ["Yes","No"],
+      "alcohol": ["Yes","No"],
+      "activity": ["Yes","No"]
+    },
+    "units": {
+      "height": ["cm","in"],
+      "weight": ["kg","lb"]
+    }
+  },
+  "medical-profile": {
+    "title": "Patient Questionnaire",
+    "sections": {
+      "General Information": "General Information",
+      "Genetics & Family history": "Genetics & Family history",
+      "Lifestyle": "Lifestyle",
+      "Medications & Supplements": "Medications & Supplements",
+      "Mental & Emotional": "Mental & Emotional",
+      "Environment": "Environment",
+      "Tech & Devices": "Tech & Devices",
+      "Goals": "Goals",
+      "Individual Traits": "Individual Traits",
+      "Privacy & Trust": "Privacy & Trust",
+      "Surgical History": "Surgical History"
+    },
+    "questions": {
+      "sex": "Sex",
+      "marital_status": "Marital status",
+      "education": "Education",
+      "occupation": "Occupation",
+      "time_zone": "Time zone",
+      "family_chronic": "Family chronic diseases?",
+      "family_mental": "Family mental health disorders?",
+      "known_genetics": "Known genetic mutations or traits?",
+      "sleep_avg": "Average sleep (hours)",
+      "stress_often": "How often do you feel stress?",
+      "stress_coping": "How do you cope with stress?",
+      "activity_detail": "Physical activity (type, frequency)",
+      "diet_style": "Diet style",
+      "alcohol_detail": "Alcohol (type, frequency)",
+      "smoking_detail": "Smoking (years/day)",
+      "recreational": "Recreational substances?",
+      "screen_time": "Daily screen time (hours)",
+      "hobbies": "Relaxing hobbies?",
+      "rx_meds": "Prescription medications (name/dose/frequency)",
+      "supplements": "Supplements/vitamins (which and why)",
+      "drug_allergy": "Drug allergies?",
+      "side_effects": "Medication side effects?",
+      "mood_current": "Current emotional state",
+      "mood_swings": "Mood swings?",
+      "anxiety_depr": "Anxiety/Depression/Other?",
+      "therapy": "Therapy/counseling/coaching?",
+      "support": "Supportive environment?",
+      "living_area": "Where do you live? (city/suburb/rural)",
+      "pollution": "Nearby industrial zones/air pollution?",
+      "filters": "Water/air filters?",
+      "pets": "Pets?",
+      "nature": "How often are you in nature?",
+      "wearables": "Wearables (watch/sleep/HR)?",
+      "health_apps": "Health/fitness apps?",
+      "share_data": "Share device data with BioMath Core?",
+      "goals": "Your health goals",
+      "wellness_means": "What does wellness mean to you?",
+      "next_3m": "Changes you are ready to adopt in 3 months",
+      "barriers": "Barriers to change",
+      "neuro": "Sensory traits/Autism/ADHD?",
+      "info_pref": "Preferred information format (text/video/visual)",
+      "share_scope": "What data are you ready to share?",
+      "security_concerns": "Digital security concerns?",
+      "trust": "What builds your trust here?",
+      "comms_style": "Communication preferences (tone/style/frequency)",
+      "surgeries": "Surgical history (what/when)"
+    }
+  }
+}

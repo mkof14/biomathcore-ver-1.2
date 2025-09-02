@@ -1,0 +1,245 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  name         String?
+  passwordHash String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  subscriptions Subscription[]
+  devices       Device[]
+  notes         BlackBoxNote[]
+  reports       Report[]
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeSubscriptionId String    @unique
+  stripePriceId        String?
+  plan                 String? // "core" | "daily" | "max"
+  status               String?
+  currentPeriodEnd     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Device {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        String // e.g. "oura", "garmin", etc.
+  name        String
+  status      String? // e.g. "connected" | "disconnected"
+  connectedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model BlackBoxNote {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title  String
+  body   String
+  tags   String?
+  status String? // e.g. "draft" | "final"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Report {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title  String
+  json   Json
+  status String? // e.g. "draft" | "published"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  blurb     String?
+  iconKey   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// === Questionnaires Core ===
+
+model Questionnaire {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  versions QuestionnaireVersion[]
+  links    QuestionnaireLink[]
+  sessions ResponseSession[]
+}
+
+model QuestionnaireVersion {
+  id              String   @id @default(cuid())
+  questionnaireId String
+  version         Int
+  schemaJson      Json
+  createdAt       DateTime @default(now())
+
+  questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id])
+
+  @@unique([questionnaireId, version])
+}
+
+model QuestionnaireLink {
+  id              String   @id @default(cuid())
+  questionnaireId String
+  linkType        LinkType
+  linkValue       String
+  required        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id])
+
+  @@index([linkType, linkValue])
+}
+
+enum LinkType {
+  PLAN
+  CATEGORY
+  SERVICE
+}
+
+model ResponseSession {
+  id              String             @id @default(cuid())
+  questionnaireId String
+  version         Int
+  userId          String?
+  visibility      ResponseVisibility
+  status          ResponseStatus     @default(DRAFT)
+  progress        Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  submittedAt     DateTime?
+
+  questionnaire Questionnaire    @relation(fields: [questionnaireId], references: [id])
+  answers       ResponseAnswer[]
+  anonymizedAt  DateTime?
+
+  @@index([userId, questionnaireId])
+}
+
+enum ResponseVisibility {
+  identified
+  anonymous
+}
+
+enum ResponseStatus {
+  DRAFT
+  SUBMITTED
+}
+
+model ResponseAnswer {
+  id          String   @id @default(cuid())
+  sessionId   String
+  questionId  String
+  isSensitive Boolean  @default(false)
+  payloadJson Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  session ResponseSession @relation(fields: [sessionId], references: [id])
+
+  @@unique([sessionId, questionId], name: "sessionId_questionId")
+  @@index([sessionId, questionId])
+}
+
+model UserProfileSnapshot {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String   @default("core") // "core", "summary", etc.
+  dataJson  Json
+  createdAt DateTime @default(now())
+
+  @@index([userId, kind])
+}
+
+model Consent {
+  id         String   @id @default(cuid())
+  userId     String?
+  scope      String // e.g. "questionnaires", "analytics"
+  version    String // policy version id
+  acceptedAt DateTime @default(now())
+  ip         String?
+  userAgent  String?
+
+  @@index([userId, scope])
+}
+
+model AccessLog {
+  id        String   @id @default(cuid())
+  actor     String // "user:<id>" | "system:<name>"
+  resource  String // e.g. "ResponseSession:<id>"
+  action    String // "READ" | "EXPORT" | "DELETE" | "ANONYMIZE"
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([resource, action])
+  @@index([actor, createdAt])
+}
+
+model RetentionPolicy {
+  id        String   @id @default(cuid())
+  category  String // "sensitive_raw", "aggregates"
+  ttlDays   Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category])
+}
+
+model BlackBox {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

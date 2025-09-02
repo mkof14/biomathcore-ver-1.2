@@ -1,0 +1,91 @@
+// src/pages/api/ai.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return res.status(200).json({ ok: true, route: "/api/ai" });
+  }
+
+  if (req.method === "POST") {
+   
+   
+    // const input = typeof req.body?.input === "string" ? req.body.input : "";
+    // return res.status(200).json({ content: input ? `ECHO: ${input}` : "ECHO: (empty)" });
+
+   
+    try {
+      const input = req.body?.input;
+      const model = req.body?.model || "gpt-4o-mini";
+      const temperature =
+        typeof req.body?.temperature === "number" ? req.body.temperature : 0.7;
+      const system = req.body?.system;
+
+      if (!input || typeof input !== "string") {
+        return res
+          .status(400)
+          .json({ error: "Field 'input' is required (string)" });
+      }
+
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res
+          .status(500)
+          .json({ error: "OPENAI_API_KEY is missing on server (.env.local)" });
+      }
+
+      const payload = {
+        model,
+        temperature,
+        messages: [
+          ...(system ? [{ role: "system", content: system }] : []),
+          { role: "user", content: input },
+        ],
+      };
+
+      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const text = await resp.text();
+      let data: any = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+       
+      }
+
+      if (!resp.ok) {
+        const reason =
+          data?.error?.message ||
+          data?.error ||
+          (typeof data === "string" ? data : "") ||
+          `OpenAI HTTP ${resp.status}`;
+        return res
+          .status(resp.status)
+          .json({
+            error: typeof reason === "string" ? reason : JSON.stringify(reason),
+          });
+      }
+
+      const content = data?.choices?.[0]?.message?.content ?? "";
+      return res.status(200).json({ content });
+    } catch (err: any) {
+      return res
+        .status(500)
+        .json({ error: err?.message || "Upstream request failed" });
+    }
+  }
+
+ 
+  res.setHeader("Allow", "GET, POST");
+  return res.status(405).json({ error: "Method not allowed" });
+}

@@ -1,0 +1,148 @@
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+import SearchAndFilters, { type Filters } from "@/components/dashboard/SearchAndFilters";
+import MiniCharts from "@/components/dashboard/MiniCharts";
+type Report = { id: string; title: string; status: string; createdAt: string; updatedAt: string };
+type Sub = { plan: string; status: string; renewsAt?: string; quota?: { used: number; limit: number } };
+
+async function getJSON<T>(url: string, init?: RequestInit): Promise<T | undefined> {
+  try {
+    const r = await fetch(url, init);
+    if (!r.ok) return undefined;
+    const j = await r.json();
+    return (j?.data ?? j) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+export default function DashboardPage() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [sub, setSub] = useState<Sub | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+const [filters, setFilters] = useState<Filters>({});
+  const [err, setErr] = useState<string | undefined>(undefined);
+
+  async function hydrate() {
+    setLoading(true);
+    setErr(undefined);
+    const [r, s] = await Promise.all([
+      getJSON<{ items: Report[]; nextCursor?: string } | { data: Report[] }>("/api/reports?limit=5"),
+      getJSON<Sub>("/api/user/subscription"),
+    ]);
+    const list =
+      Array.isArray((r as any)?.items) ? (r as any).items as Report[] :
+      Array.isArray((r as any)?.data)  ? (r as any).data  as Report[] : [];
+    setReports(list);
+    setSub(s);
+    if (!s) setErr("Не авторизован (401). Нажми кнопку DEV-login ниже.");
+    setLoading(false);
+  }
+
+  async function devLogin() {
+    await fetch("/api/dev/cookie", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "dev-user-001" })
+    });
+    await hydrate();
+  }
+
+  useEffect(() => { hydrate(); }, []);
+
+  const total = reports.length;
+  const ready = reports.filter(r => r.status === "ready").length;
+  const draft = reports.filter(r => r.status === "draft").length;
+  const latest = reports[0]?.createdAt ? new Date(reports[0].createdAt).toLocaleString() : "—";
+
+  return (
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-semibold">Member Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Tile label="Reports" value={String(total)} href="/member-zone/reports" />
+        <Tile label="Ready" value={String(ready)} />
+        <Tile label="Drafts" value={String(draft)} />
+        <Tile label="Latest" value={latest} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="border rounded-2xl p-4">
+          <h2 className="font-medium mb-2">Subscription</h2>
+          {sub ? (
+            <div className="text-sm">
+              <div>Plan: <b>{sub.plan}</b></div>
+              <div>Status: <b className={sub.status === "active" ? "text-green-600" : "text-yellow-600"}>{sub.status}</b></div>
+              {sub.renewsAt && <div>Renews: {new Date(sub.renewsAt).toLocaleDateString()}</div>}
+              {sub.quota && <div>Usage: {sub.quota.used} / {sub.quota.limit}</div>}
+              <Link className="underline inline-block mt-2" href="/member-zone/subscriptions">Manage</Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="text-sm text-gray-600">{err || "—"}</div>
+              <button onClick={devLogin} className="border rounded px-3 py-2">DEV: sign in</button>
+            </div>
+          )}
+        </div>
+
+        <div className="border rounded-2xl p-4 md:col-span-2">
+          <h2 className="font-medium mb-2">AI Insights</h2>
+          <p className="text-sm text-gray-600">На основе последних отчётов.</p>
+          <ul className="list-disc pl-5 text-sm mt-2">
+            <li>Всего отчётов: {total}. Готовых: {ready}, черновиков: {draft}.</li>
+            <li>Последний отчёт: {latest}.</li>
+            <li>Совет: завершите черновики и экспортируйте ZIP для проверки.</li>
+          </ul>
+          <div className="mt-3">
+            <a href="/api/reports/export?limit=1000" className="border rounded px-3 py-2 inline-block">Export all (ZIP)</a>
+            <Link href="/member-zone/reports" className="underline ml-3">Go to Reports</Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="border rounded-2xl p-4">
+        <h2 className="font-medium mb-2">Recent</h2>
+        <table className="w-full text-sm border">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="p-2 border text-left">Title</th>
+              <th className="p-2 border text-left">Status</th>
+              <th className="p-2 border text-left">Created</th>
+              <th className="p-2 border text-left">Open</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(reports) && reports.length > 0 ? reports.map(r => (
+              <tr key={r.id} className="odd:bg-white even:bg-gray-50">
+                <td className="p-2 border">{r.title}</td>
+                <td className="p-2 border">{r.status}</td>
+                <td className="p-2 border">{new Date(r.createdAt).toLocaleString()}</td>
+                <td className="p-2 border">
+                  <Link className="underline" href={`/member-zone/reports/${r.id}`}>open</Link>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td className="p-2 border text-gray-500" colSpan={4}>
+                  {loading ? "Loading…" : "No items"}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Tile({ label, value, href }: { label: string; value: string; href?: string }) {
+  const body = (
+    <div className="border rounded-2xl p-4">
+      <div className="text-sm text-gray-500">{label}</div>
+      <div className="text-2xl font-semibold">{value}</div>
+    </div>
+  );
+  return href ? <Link href={href}>{body}</Link> : body;
+}

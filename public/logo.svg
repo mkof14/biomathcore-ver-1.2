@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="64" viewBox="0 0 240 64" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#6C00FF"/>
+    </linearGradient>
+  </defs>
+  <text x="0" y="45" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold" fill="url(#grad)">
+    BioMath
+  </text>
+  <text x="175" y="45" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold" fill="#FFFFFF">
+    Core
+  </text>
+</svg>

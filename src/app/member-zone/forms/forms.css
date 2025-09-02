@@ -1,0 +1,198 @@
+:root {
+  --bm-bg: #0a0a0a;
+  --bm-fg: #ffffff;
+  --bm-muted: #a3a3a3;
+  --bm-input-bg: #f3f4f6;
+  --bm-input-fg: #111827;
+  --bm-input-border: #e5e7eb;
+  --bm-input-placeholder: #6b7280;
+  --bm-ring: rgba(167,139,250,0.35);
+}
+
+.forms-root h1, .forms-root h2, .forms-root .card-title {
+  color: var(--bm-fg) !important;
+}
+
+.forms-root input,
+.forms-root textarea,
+.forms-root select {
+  background: var(--bm-input-bg) !important;
+  color: var(--bm-input-fg) !important;
+  border: 1px solid var(--bm-input-border) !important;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  outline: none;
+}
+
+.forms-root input::placeholder,
+.forms-root textarea::placeholder {
+  color: var(--bm-input-placeholder);
+}
+
+.forms-root input:focus,
+.forms-root textarea:focus,
+.forms-root select:focus {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px var(--bm-ring);
+}
+
+.forms-root .btn-primary {
+  background: #7c3aed !important;
+  color: #fff !important;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.forms-root .btn-secondary {
+  background: #1f2937 !important;
+  color: #fff !important;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+}
+
+.label-soft {
+  color: #e5e7eb;
+}
+
+.section-card {
+  border: 1px solid #1f2937;
+  background: rgba(17, 24, 39, 0.6);
+  border-radius: 0.75rem;
+}
+
+/* --- Enhancements (safe) --- */
+
+/* Яркие заголовки и видимые карточки */
+.forms-root h1, .forms-root h2, .forms-root .card-title, .forms-root .CardTitle {
+  color: #fff !important;
+}
+
+.section-card {
+  border: 1px solid #1f2937;
+  background: rgba(17, 24, 39, 0.7);
+  border-radius: 0.75rem;
+}
+
+/* Светлые поля на тёмном фоне */
+:root {
+  --bm-input-bg: #f3f4f6;
+  --bm-input-fg: #111827;
+  --bm-input-border: #e5e7eb;
+  --bm-ring: rgba(167,139,250,0.35);
+}
+
+.forms-root input,
+.forms-root textarea,
+.forms-root select {
+  background: var(--bm-input-bg) !important;
+  color: var(--bm-input-fg) !important;
+  border: 1px solid var(--bm-input-border) !important;
+}
+
+.forms-root input::placeholder,
+.forms-root textarea::placeholder {
+  color: #6b7280;
+}
+
+.forms-root input:focus,
+.forms-root textarea:focus,
+.forms-root select:focus {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px var(--bm-ring);
+  outline: none;
+}
+
+/* Кнопки */
+.forms-root .btn-primary {
+  background: #7c3aed !important;
+  color: #fff !important;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.forms-root .btn-secondary {
+  background: #1f2937 !important;
+  color: #fff !important;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+}
+
+/* ===== UI readability tweaks (safe) ===== */
+.forms-root h1, .forms-root h2, .forms-root .card-title, .forms-root .CardTitle {
+  color: #fff !important;
+}
+
+.forms-root input,
+.forms-root textarea,
+.forms-root select {
+  background: #f3f4f6 !important;   /* light */
+  color: #111827 !important;         /* dark text */
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem;
+}
+
+.forms-root input::placeholder,
+.forms-root textarea::placeholder {
+  color: #6b7280;
+}
+
+.forms-root input:focus,
+.forms-root textarea:focus,
+.forms-root select:focus {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.35);
+  outline: none;
+}
+
+.forms-root .btn-primary {
+  background: #7c3aed !important;
+  color: #fff !important;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.forms-root .btn-secondary {
+  background: #1f2937 !important;
+  color: #fff !important;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+}
+
+/* Stronger selectors for inputs created by components */
+.forms-root :is(input, textarea, select) {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+}
+.forms-root :is(input, textarea, select)::placeholder { color:#6b7280; }
+.forms-root :is(input, textarea, select):focus {
+  border-color:#a78bfa !important;
+  box-shadow:0 0 0 3px rgba(167,139,250,0.35) !important;
+  outline:none !important;
+}
+
+/* Buttons (ensure consistency) */
+.forms-root .btn-primary {
+  background:#7c3aed !important;
+  color:#fff !important;
+  border:1px solid transparent !important;
+  border-radius:0.5rem !important;
+}
+.forms-root .btn-secondary {
+  background:#1f2937 !important;
+  color:#fff !important;
+  border:1px solid #374151 !important;
+  border-radius:0.5rem !important;
+}
+
+.forms-root input, .forms-root textarea, .forms-root select {
+  background:#f3f4f6 !important;
+  color:#111827 !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:0.5rem !important;
+}
+.forms-root :is(input,textarea,select)::placeholder{color:#6b7280}
+.forms-root :is(input,textarea,select):focus{border-color:#a78bfa !important; box-shadow:0 0 0 3px rgba(167,139,250,.35) !important; outline:none !important}
+.forms-root .btn-primary{background:#7c3aed !important; color:#fff !important; border:1px solid transparent !important; border-radius:.5rem !important}
+.forms-root .btn-secondary{background:#1f2937 !important; color:#fff !important; border:1px solid #374151 !important; border-radius:.5rem !important}

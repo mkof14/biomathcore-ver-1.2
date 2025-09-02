@@ -1,0 +1,15 @@
+import type { ReactNode } from "react";
+import MemberNav from "@/components/nav/MemberNav";
+
+export default function MemberZoneLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-h-[100dvh] bg-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-[1400px] flex">
+        <div className="hidden md:block sticky top-0 h-[100dvh]">
+          <MemberNav />
+        </div>
+        <main className="flex-1 w-full md:min-w-[800px]">{children}</main>
+      </div>
+    </div>
+  );
+}

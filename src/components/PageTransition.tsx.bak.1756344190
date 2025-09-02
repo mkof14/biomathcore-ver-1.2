@@ -1,0 +1,28 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+export default function PageTransition({ children }) {
+  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    if (router && router.events) {
+      const handleRouteChange = () => {
+        document.body.classList.add("page-transition");
+        setTimeout(
+          () => document.body.classList.remove("page-transition"),
+          300,
+        );
+      };
+      router.events.on("routeChangeStart", handleRouteChange);
+      return () => router.events.off("routeChangeStart", handleRouteChange);
+    }
+  }, [router]);
+
+  if (!isMounted || !router) return <div>{children}</div>;
+
+  return <div>{children}</div>;
+}

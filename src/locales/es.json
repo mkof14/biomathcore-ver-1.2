@@ -1,0 +1,5 @@
+{
+  "langName": "Español",
+  "forms": { "patient": { "title": "Cuestionario del Paciente" } },
+  "common": { "yes": "Sí", "no": "No", "optional": "Opcional", "select": "Seleccionar…" }
+}

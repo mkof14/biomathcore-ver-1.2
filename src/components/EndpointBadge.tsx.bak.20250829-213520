@@ -1,0 +1,68 @@
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowUpRight, Copy, Check, Link as LinkIcon } from "lucide-react";
+
+type Props = {
+  path: string;
+  className?: string;
+  /** Если false — показываем только иконки, без текстовой ссылки */
+  showLabel?: boolean;
+  /** Настройка aria-label */
+  label?: string;
+};
+
+export default function EndpointBadge({ path, className, showLabel = true, label }: Props) {
+  const [copied, setCopied] = useState(false);
+  const url = path;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {}
+  }
+
+  return (
+    <div
+      className={
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm " +
+        "bg-neutral-900/40 border-neutral-700 " +
+        (className ?? "")
+      }
+      title={url}
+    >
+      {showLabel ? (
+        <>
+          <Link
+            href={url}
+            target="_blank"
+            className="font-mono underline underline-offset-2 hover:opacity-90"
+            aria-label={label || "Open endpoint"}
+          >
+            {url}
+          </Link>
+          <Link href={url} target="_blank" aria-label="Open in new tab">
+            <ArrowUpRight className="h-4 w-4 opacity-70 hover:opacity-100" />
+          </Link>
+          <button onClick={copy} className="ml-1 opacity-80 hover:opacity-100" aria-label="Copy URL">
+            {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+          </button>
+        </>
+      ) : (
+        <>
+          <Link href={url} target="_blank" aria-label={label || "Open endpoint"}>
+            <LinkIcon className="h-4 w-4 opacity-80 hover:opacity-100" />
+          </Link>
+          <Link href={url} target="_blank" aria-label="Open in new tab">
+            <ArrowUpRight className="h-4 w-4 opacity-70 hover:opacity-100" />
+          </Link>
+          <button onClick={copy} className="opacity-80 hover:opacity-100" aria-label="Copy URL">
+            {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}

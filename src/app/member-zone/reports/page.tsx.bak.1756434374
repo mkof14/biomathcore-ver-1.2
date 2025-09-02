@@ -1,0 +1,73 @@
+"use client";
+// @ts-nocheck
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import ActionBar from "@/components/ActionBar";
+import EndpointBadge from "@/components/EndpointBadge";
+
+type Row = { id:string; title:string; status:string; createdAt:string; updatedAt:string; };
+
+export default function ReportsPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/reports?limit=50");
+      const j = await res.json().catch(()=>({}));
+      const arr = Array.isArray(j?.data) ? j.data : [];
+      setRows(arr);
+    } finally { setLoading(false); }
+  }
+  useEffect(()=>{ load(); }, []);
+
+  async function createSample() {
+    await fetch("/api/reports", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ title:"Sample report", status:"draft", content:"Hello world" })
+    });
+    await load();
+  }
+
+  return (
+    <div className="p-6">
+      <ActionBar
+        title="Reports"
+        onCreate={createSample}
+        extra={<EndpointBadge path="/api/reports" />}
+      />
+      <div className="rounded border border-neutral-800 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-neutral-900/40">
+            <tr>
+              <th className="p-2 text-left">Title</th>
+              <th className="p-2 text-left">Status</th>
+              <th className="p-2 text-left">Created</th>
+              <th className="p-2 text-left w-[120px]">Open</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r: Row) => (
+              <tr className="odd:bg-black even:bg-neutral-900/30" key={r.id}>
+                <td className="p-2 border border-neutral-900">{r.title}</td>
+                <td className="p-2 border border-neutral-900">{r.status}</td>
+                <td className="p-2 border border-neutral-900">{new Date(r.createdAt).toLocaleString()}</td>
+                <td className="p-2 border border-neutral-900">
+                  <Link className="underline" href={`/member-zone/reports/${r.id}`}>open</Link>
+                </td>
+              </tr>
+            ))}
+            {!rows.length && !loading && (
+              <tr><td className="p-3 text-neutral-500" colSpan={4}>No items.</td></tr>
+            )}
+            {loading && (
+              <tr><td className="p-3 text-neutral-400" colSpan={4}>Loading…</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

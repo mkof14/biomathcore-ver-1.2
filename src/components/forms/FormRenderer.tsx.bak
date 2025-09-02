@@ -1,0 +1,353 @@
+"use client";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useFormTheme } from "./FormProvider";
+import { THEME_A as FALLBACK } from "./themes";
+
+type QOption = { value: string; label: string };
+type QBase = {
+  id: string;
+  type: "text" | "number" | "date" | "boolean" | "single" | "multi" | "scale";
+  label: string;
+  description?: string;
+  placeholder?: string;
+  required?: boolean;
+  allowPreferNotToSay?: boolean;
+  isSensitive?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: QOption[];
+};
+type QSection = {
+  id: string;
+  title: string;
+  description?: string;
+  questions: QBase[];
+};
+type QSchema = {
+  id: string;
+  version: number;
+  title: string;
+  description?: string;
+  sections: QSection[];
+};
+
+type Props = {
+  schema: QSchema;
+  questionnaireKey: string;
+  visibility: "identified" | "anonymous";
+};
+
+type AnswersMap = Record<string, any>;
+
+export default function FormRenderer(props: Props) {
+  const { schema, questionnaireKey, visibility } = props;
+  const theme = useFormTheme() || FALLBACK;
+  const router = useRouter();
+
+  const allQuestions: QBase[] = useMemo(
+    () => schema.sections.flatMap((s) => s.questions),
+    [schema]
+  );
+
+  const [answers, setAnswers] = useState<AnswersMap>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const totalRequired = useMemo(
+    () => allQuestions.filter((q) => !!q.required).length,
+    [allQuestions]
+  );
+
+  const requiredAnswered = useMemo(() => {
+    if (totalRequired === 0) return 0;
+    let done = 0;
+    for (const q of allQuestions) {
+      if (!q.required) continue;
+      const v = answers[q.id];
+      if (
+        v !== undefined &&
+        v !== null &&
+        (typeof v === "number" ||
+          typeof v === "boolean" ||
+          (typeof v === "string" && v.trim() !== "") ||
+          (Array.isArray(v) && v.length > 0))
+      ) {
+        done++;
+      }
+    }
+    return done;
+  }, [answers, allQuestions, totalRequired]);
+
+  const progress = totalRequired === 0 ? 0 : Math.round((requiredAnswered / totalRequired) * 100);
+
+  function updateAnswer(id: string, value: any) {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
+  }
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+     
+     
+      router.push("/member/intake");
+      router.refresh();
+    } catch (err) {
+      console.error("[submit] error", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+ 
+  const SHELL = theme?.shell ?? "max-w-3xl mx-auto px-4 py-6";
+  const HEADER_CARD =
+    theme?.header?.card ??
+    "rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900/80 p-4 mb-4";
+  const HEADER_TITLE =
+    theme?.header?.title ?? "text-lg font-semibold text-zinc-900 dark:text-zinc-100";
+  const HEADER_DESC = theme?.header?.desc ?? "text-sm text-zinc-600 dark:text-zinc-300 mt-1";
+  const PROGRESS_WRAP =
+    theme?.progress?.wrap ?? "relative w-40 h-2 rounded bg-zinc-200 dark:bg-zinc-800 overflow-hidden";
+  const PROGRESS_BAR = theme?.progress?.bar ?? "absolute left-0 top-0 h-full bg-zinc-500/70";
+
+  const SECTION_CARD =
+    theme?.section?.card ??
+    "rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900/80 p-4 mb-5";
+  const SECTION_TITLE =
+    theme?.section?.title ?? "text-base font-medium text-zinc-900 dark:text-zinc-100";
+  const SECTION_DESC = theme?.section?.desc ?? "text-sm text-zinc-600 dark:text-zinc-300 mt-1";
+
+  const LABEL =
+    theme?.label ?? "block text-sm font-medium text-zinc-800 dark:text-zinc-200";
+  const INPUT_BASE =
+    theme?.input ??
+    "mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm outline-none";
+  const HELP = "text-xs text-zinc-500 dark:text-zinc-400 mt-1";
+
+  const CHOICE_BASE =
+    theme?.choice?.base ??
+    "px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm";
+  const CHOICE_ACTIVE =
+    theme?.choice?.active ??
+    "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-transparent";
+
+  const BTN_PRIMARY =
+    theme?.button?.primary ??
+    "inline-flex items-center rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800";
+
+  return (
+    <form onSubmit={onSubmit} className={SHELL}>
+      {/* Header */}
+      <div className={HEADER_CARD}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className={HEADER_TITLE}>{schema.title}</div>
+            {schema.description && <div className={HEADER_DESC}>{schema.description}</div>}
+          </div>
+          <div className={PROGRESS_WRAP} aria-label="Progress bar">
+            <div className={PROGRESS_BAR} style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Sections */}
+      {schema.sections.map((sec) => (
+        <div key={sec.id} className={SECTION_CARD}>
+          <div className={SECTION_TITLE}>{sec.title}</div>
+          {sec.description && <div className={SECTION_DESC}>{sec.description}</div>}
+
+          <div className="mt-4 space-y-4">
+            {sec.questions.map((q) => {
+              const value = answers[q.id];
+              const base = INPUT_BASE;
+              const onChangeStr = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                updateAnswer(q.id, e.target.value);
+              const onChangeNum = (e: React.ChangeEvent<HTMLInputElement>) => {
+                const v = e.target.value;
+                updateAnswer(q.id, v === "" ? "" : Number(v));
+              };
+
+              return (
+                <div key={q.id}>
+                  <label className={LABEL}>
+                    {q.label} {q.required && <span className="text-red-500">*</span>}
+                  </label>
+
+                  {/* TEXT */}
+                  {q.type === "text" && (
+                    <textarea
+                      className={base}
+                      placeholder={q.placeholder || ""}
+                      value={value ?? ""}
+                      onChange={onChangeStr}
+                      rows={3}
+                    />
+                  )}
+
+                  {/* NUMBER */}
+                  {q.type === "number" && (
+                    <input
+                      type="number"
+                      className={base}
+                      placeholder={q.placeholder || ""}
+                      value={value ?? ""}
+                      onChange={onChangeNum}
+                      min={q.min}
+                      max={q.max}
+                      step={q.step ?? 1}
+                      inputMode="decimal"
+                    />
+                  )}
+
+                  {/* DATE */}
+                  {q.type === "date" && (
+                    <input
+                      type="date"
+                      className={base}
+                      value={value ?? ""}
+                      onChange={(e) => updateAnswer(q.id, e.target.value)}
+                    />
+                  )}
+
+                  {/* BOOLEAN */}
+                  {q.type === "boolean" && (
+                    <div className="mt-1">
+                      <label className="inline-flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={!!value}
+                          onChange={(e) => updateAnswer(q.id, e.target.checked)}
+                        />
+                        <span>Yes</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* SINGLE */}
+                  {q.type === "single" && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(q.options ?? []).map((opt) => {
+                        const active = value === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`${CHOICE_BASE} ${active ? CHOICE_ACTIVE : ""}`}
+                            onClick={() => updateAnswer(q.id, opt.value)}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                      {q.allowPreferNotToSay && (
+                        <button
+                          type="button"
+                          className={`${CHOICE_BASE} ${value === null ? CHOICE_ACTIVE : ""}`}
+                          onClick={() => updateAnswer(q.id, null)}
+                        >
+                          Prefer not to say
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* MULTI */}
+                  {q.type === "multi" && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(q.options ?? []).map((opt) => {
+                        const arr: string[] = Array.isArray(value) ? value : [];
+                        const active = arr.includes(opt.value);
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`${CHOICE_BASE} ${active ? CHOICE_ACTIVE : ""}`}
+                            onClick={() => {
+                              const next = new Set(arr);
+                              if (next.has(opt.value)) next.delete(opt.value);
+                              else next.add(opt.value);
+                              updateAnswer(q.id, Array.from(next));
+                            }}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                      {q.allowPreferNotToSay && (
+                        <button
+                          type="button"
+                          className={`${CHOICE_BASE} ${value === null ? CHOICE_ACTIVE : ""}`}
+                          onClick={() => updateAnswer(q.id, null)}
+                        >
+                          Prefer not to say
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* SCALE */}
+                  {q.type === "scale" && (
+                    <div className="mt-2">
+                      <input
+                        type="range"
+                        min={q.min ?? 0}
+                        max={q.max ?? 10}
+                        step={q.step ?? 1}
+                        value={typeof value === "number" ? value : (q.min ?? 0)}
+                        onChange={(e) => updateAnswer(q.id, Number(e.target.value))}
+                        className="w-full"
+                      />
+                      <div className="text-xs mt-1">
+                        {typeof value === "number" ? value : (q.min ?? 0)}
+                      </div>
+                    </div>
+                  )}
+
+                  {q.description && <div className={HELP}>{q.description}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Footer actions */}
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) {
+             
+              window.history.back();
+            } else {
+             
+              router.push("/member/intake");
+            }
+          }}
+          className={BTN_PRIMARY}
+          aria-label="Back"
+        >
+          Back
+        </button>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={BTN_PRIMARY}
+          aria-label="Submit questionnaire"
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </button>
+      </div>
+
+      {}
+      <div className="sr-only" aria-hidden>
+        <span data-qkey={questionnaireKey} />
+        <span data-visibility={visibility} />
+      </div>
+    </form>
+  );
+}

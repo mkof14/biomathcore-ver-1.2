@@ -1,0 +1,25 @@
+.input-soft {
+  @apply w-full rounded-md border border-neutral-300/70 bg-white/90 text-neutral-900 placeholder-neutral-400 px-3 py-2 shadow-[inset_0_1px_0_#ffffff80] focus:outline-none focus:ring-2 focus:ring-violet-300/70 focus:border-violet-400 transition;
+}
+.label-soft { @apply text-sm font-medium text-neutral-900; }
+.help-soft  { @apply text-xs text-neutral-500; }
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-md bg-violet-600 text-white px-4 py-2 font-medium hover:bg-violet-500 disabled:opacity-50;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-md border border-neutral-300 bg-white text-neutral-900 px-4 py-2 hover:bg-neutral-50;
+}
+.select-soft {
+  @apply input-soft pr-8 appearance-none bg-[right_0.5rem_center] bg-no-repeat;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #555 50%),
+    linear-gradient(135deg, #555 50%, transparent 50%),
+    linear-gradient(to right, #ddd, #ddd);
+  background-position:
+    calc(100% - 14px) calc(50% - 3px),
+    calc(100% - 9px)  calc(50% - 3px),
+    calc(100% - 2.1rem) 50%;
+  background-size: 5px 5px, 5px 5px, 1px 1.35rem;
+}
+.section-title { @apply text-base font-semibold text-neutral-900; }
+.page-title { @apply text-xl font-bold text-neutral-900; }

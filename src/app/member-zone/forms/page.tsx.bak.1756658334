@@ -1,0 +1,65 @@
+import "./forms.css";
+"use client";
+import "./forms.css";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
+
+type Item = { slug:string; title:string; category:string };
+
+export default function FormsList() {
+  const qs = useSearchParams();
+  const router = useRouter();
+  const isAdmin = qs.get("admin")==="1";
+
+  const [lang, setLang] = useState<string>(typeof window!=="undefined"?localStorage.getItem("bmc_lang")||"en":"en");
+  const [items, setItems] = useState<Item[]>([]);
+
+  useEffect(()=>{
+    (async()=>{
+      const r = await fetch('/api/forms/list' + (isAdmin? '?admin=1' : ''), { cache:'no-store' });
+      const j = await r.json();
+      setItems(j?.data||[]);
+    })();
+    if (typeof window!=="undefined") localStorage.setItem("bmc_lang", lang);
+  },[isAdmin, lang]);
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-white">Questionnaires</h1>
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-neutral-300">{isAdmin? "Admin: all forms" : "Your forms"}</div>
+          <div className="relative">
+            <select
+              value={lang}
+              onChange={(e)=>setLang(e.target.value)}
+              className="appearance-none bg-neutral-900 text-white border border-neutral-700 rounded-lg px-3 py-2 pr-8
+                         hover:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-violet-600">
+              <option value="en">English</option>
+              <option value="ru">Русский</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+            </select>
+            <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-300">▾</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        {items.map(x=>(
+          <div key={x.slug} className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-4 flex items-center justify-between">
+            <div>
+              <div className="text-white font-medium">{x.title}</div>
+              <div className="text-xs text-neutral-400">{x.category}</div>
+            </div>
+            <Link href={`/member-zone/forms/${x.slug}?lang=${lang}`} className="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-500">
+              Open
+            </Link>
+          </div>
+        ))}
+        {!items.length && <div className="text-sm text-neutral-400">No forms.</div>}
+      </div>
+    </div>
+  );
+}

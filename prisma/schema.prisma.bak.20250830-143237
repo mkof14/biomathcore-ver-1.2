@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FormStatus { DRAFT ACTIVE ARCHIVED }
+enum Visibility { PUBLIC INVITE_ONLY PLAN_GATED }
+enum QuestionType { TEXT TEXTAREA NUMBER DATE BOOLEAN SINGLE_CHOICE MULTI_CHOICE }
+enum Sensitivity { NONE LOW MEDIUM HIGH }
+enum InstanceStatus { DRAFT SUBMITTED }
+
+model Form {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  title            String
+  category         String?
+  status           FormStatus   @default(ACTIVE)
+  visibility       Visibility   @default(PUBLIC)
+  gates            String[]     @default([])
+  anonymousAllowed Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  sections         FormSection[]
+  instances        FormInstance[]
+}
+
+model FormSection {
+  id        String    @id @default(cuid())
+  formId    String
+  order     Int
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  form      Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  questions Question[]
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  sectionId   String
+  order       Int
+  type        QuestionType
+  label       String
+  required    Boolean      @default(false)
+  sensitivity Sensitivity  @default(NONE)
+  options     Json?        // e.g. { choices: [{value,label}] }
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  section     FormSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+}
+
+model FormInstance {
+  id          String         @id @default(cuid())
+  formId      String
+  userId      String
+  anonymous   Boolean        @default(false)
+  status      InstanceStatus @default(DRAFT)
+  submittedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  form        Form           @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+  consents    ConsentRecord[]
+}
+
+model Answer {
+  id         String       @id @default(cuid())
+  instanceId String
+  questionId String
+  value      Json?
+  encryptedRaw Bytes?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  Instance   FormInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  Question   Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([instanceId, questionId])
+}
+
+model ConsentRecord {
+  id         String       @id @default(cuid())
+  instanceId String
+  kind       String
+  granted    Boolean
+  timestamp  DateTime     @default(now())
+  ip         String?
+  userAgent  String?
+
+  Instance   FormInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,64 @@
+"use client";
+import React, { useEffect, useState } from "react";
+
+type Summary = { ai: number; voice: number; dg: number };
+
+function Card({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-xl border border-neutral-800 bg-neutral-950/50">{children}</div>;
+}
+function CardHeader({ children }: { children: React.ReactNode }) {
+  return <div className="p-4 border-b border-neutral-800">{children}</div>;
+}
+function CardTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-lg font-semibold leading-none tracking-tight">{children}</h3>;
+}
+function CardContent({ children }: { children: React.ReactNode }) {
+  return <div className="p-5">{children}</div>;
+}
+
+export default function DashboardPage() {
+  const [data, setData] = useState<Summary>({ ai: 0, voice: 0, dg: 0 });
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/dashboard/summary", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const j = await res.json();
+        setData({
+          ai: Number(j?.data?.ai ?? 0),
+          voice: Number(j?.data?.voice ?? 0),
+          dg: Number(j?.data?.dg ?? 0),
+        });
+      } catch (e: any) {
+        setErr(e?.message || "Failed to load");
+      }
+    })();
+  }, []);
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="text-2xl font-semibold">Dashboard</div>
+
+      {err && <div className="text-red-500 text-sm">Error: {err}</div>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader><CardTitle>AI</CardTitle></CardHeader>
+          <CardContent><div className="text-5xl font-bold tabular-nums">{data.ai}</div></CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Voice</CardTitle></CardHeader>
+          <CardContent><div className="text-5xl font-bold tabular-nums">{data.voice}</div></CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Drug–Gene</CardTitle></CardHeader>
+          <CardContent><div className="text-5xl font-bold tabular-nums">{data.dg}</div></CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

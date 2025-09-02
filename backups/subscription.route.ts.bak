@@ -1,0 +1,24 @@
+import { NextResponse } from "next/server";
+import { getDevUserIdFromHeaders } from "@/lib/devUser";
+export const runtime = "nodejs";
+
+type MaybeReal = { GET?(req: Request): Promise<Response> | Response };
+
+function devOk(userId: string) {
+  return NextResponse.json({
+    ok: true,
+    data: { userId, plan: "pro", planCode: "pro", status: "active", renewsAt: null }
+  });
+}
+
+export async function GET(req: Request) {
+  const devId = getDevUserIdFromHeaders(req);
+  if (devId) return devOk(devId);
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const real: MaybeReal = await import("./route.real");
+    if (real?.GET) return real.GET(req);
+  } catch {}
+  return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+}

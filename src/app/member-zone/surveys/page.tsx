@@ -1,33 +1,20 @@
 "use client";
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Questionnaire } from '@prisma/client';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then((res) => {
+  if (!res.ok) {
+    throw new Error('Failed to fetch questionnaires');
+  }
+  return res.json();
+});
 
 export default function SurveysPage() {
-  const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: questionnaires, error, isLoading } = useSWR<Questionnaire[]>('/api/questionnaires', fetcher);
 
-  useEffect(() => {
-    async function fetchQuestionnaires() {
-      try {
-        const response = await fetch('/api/questionnaires');
-        if (!response.ok) {
-          throw new Error('Failed to fetch questionnaires');
-        }
-        const data = await response.json();
-        setQuestionnaires(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchQuestionnaires();
-  }, []);
-
-  const groupedByCategory = questionnaires.reduce((acc, q) => {
+  const groupedByCategory = !questionnaires ? {} : questionnaires.reduce((acc, q) => {
     const category = q.category || 'General';
     if (!acc[category]) {
       acc[category] = [];
@@ -36,20 +23,19 @@ export default function SurveysPage() {
     return acc;
   }, {} as Record<string, Questionnaire[]>);
 
-
-  if (loading) {
+  if (isLoading) {
     return <div className="p-8 text-center">Loading surveys...</div>;
   }
 
   if (error) {
-    return <div className="p-8 text-center text-red-500">Error: {error}</div>;
+    return <div className="p-8 text-center text-red-500">Error: {error.message}</div>;
   }
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Available Surveys</h1>
 
-      {Object.keys(groupedByCategory).length === 0 ? (
+      {!questionnaires || questionnaires.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-400">No surveys available at the moment.</p>
       ) : (
         <div className="space-y-8">

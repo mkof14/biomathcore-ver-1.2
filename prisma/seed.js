@@ -1,6 +1,5 @@
-const { PrismaClient, QuestionType, QuestionnaireVisibility } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const { QuestionType, QuestionnaireVisibility } = require('@prisma/client');
+const { prisma } = require('../src/lib/prisma');
 
 const questionnaires = [
   // --- Main Profile (Mandatory) ---
@@ -164,6 +163,38 @@ const questionnaires = [
 async function main() {
   console.log(`Start seeding ...`);
 
+  console.log('Upserting test user...');
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@test.com' },
+    update: {},
+    create: {
+      email: 'test@test.com',
+      name: 'Test User',
+      role: 'user',
+    },
+  });
+  console.log(`Test user created with id: ${testUser.id}`);
+
+  console.log('Upserting subscriptions for test user...');
+  await prisma.subscription.createMany({
+    data: [
+      {
+        userId: testUser.id,
+        plan: 'premium-sexual-health',
+        status: 'active',
+        stripeSubscriptionId: `sub_test_${Math.random()}`
+      },
+      {
+        userId: testUser.id,
+        plan: 'max',
+        status: 'active',
+        stripeSubscriptionId: `sub_test_${Math.random()}`
+      }
+    ]
+  });
+  console.log('Subscriptions created.');
+
+  console.log('Seeding questionnaires...');
   for (const q of questionnaires) {
     const questionnaire = await prisma.questionnaire.create({
       data: {
@@ -200,7 +231,4 @@ main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

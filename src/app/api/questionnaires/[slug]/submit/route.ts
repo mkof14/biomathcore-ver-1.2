@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
-
+// A more specific schema for validating incoming answers.
 const answerSchema = z.object({
-  questionId: z.string(),
-  value: z.any(), // Value can be string, number, boolean, array, etc.
+  questionId: z.string().cuid(), // Expect a CUID for the question ID
+  value: z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.string()),
+  ]),
 });
 
 const submitBodySchema = z.array(answerSchema);
@@ -31,7 +35,10 @@ export async function POST(
   const parsedAnswers = submitBodySchema.safeParse(body);
 
   if (!parsedAnswers.success) {
-    return NextResponse.json({ error: 'Invalid answers format' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid answers format', issues: parsedAnswers.error.issues },
+      { status: 400 }
+    );
   }
 
   try {
@@ -45,7 +52,6 @@ export async function POST(
     }
 
     // Authorization check
-    // (A simplified version of the GET logic, assuming if they can see it, they can submit)
     if (questionnaire.visibility === 'PLAN_GATED') {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
@@ -69,7 +75,6 @@ export async function POST(
             answers: {
                 create: parsedAnswers.data.map(answer => ({
                     questionId: answer.questionId,
-                    // Storing value as a JSON string as the schema expects a string
                     value: JSON.stringify(answer.value),
                 })),
             },
@@ -84,7 +89,5 @@ export async function POST(
   } catch (error) {
     console.error(`Failed to submit questionnaire ${slug}:`, error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

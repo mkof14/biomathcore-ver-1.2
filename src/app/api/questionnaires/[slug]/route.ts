@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
-
-const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
@@ -64,7 +62,5 @@ export async function GET(
   } catch (error) {
     console.error(`Failed to fetch questionnaire ${slug}:`, error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

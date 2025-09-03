@@ -1,9 +1,7 @@
 // File: PLACEHOLDER
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { ok, bad } from "@/lib/apiResponse";
 import { auth } from "@/lib/auth/server";
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   const session = await auth();

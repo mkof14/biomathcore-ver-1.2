@@ -1,10 +1,8 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/server";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(6),

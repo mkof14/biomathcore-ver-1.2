@@ -1,39 +1,37 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
 
-const prisma = new PrismaClient();
-
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-
   try {
+    const session = await getServerSession(authOptions);
+
     const allQuestionnaires = await prisma.questionnaire.findMany({
       where: { status: 'ACTIVE' },
       orderBy: { title: 'asc' },
     });
 
     if (!session || !session.user) {
-      // Not logged in, return only public questionnaires
       const publicQuestionnaires = allQuestionnaires.filter(
         (q) => q.visibility === 'PUBLIC'
       );
       return NextResponse.json(publicQuestionnaires);
     }
 
-    // User is logged in, determine their plan and role
     const user = await prisma.user.findUnique({
       where: { email: session.user.email as string },
       include: {
         subscriptions: {
-          where: { status: 'active' }, // only consider active subscriptions
+          where: { status: 'active' },
         },
       },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      // This can happen if a user is authenticated but not yet in the DB.
+      // Returning an empty array is safe.
+      return NextResponse.json([]);
     }
 
     const userIsAdmin = user.role === 'admin';
@@ -41,19 +39,18 @@ export async function GET(request: Request) {
 
     const availableQuestionnaires = allQuestionnaires.filter((q) => {
       if (userIsAdmin) {
-        return true; // Admins see everything
+        return true;
       }
 
       switch (q.visibility) {
         case 'PUBLIC':
           return true;
         case 'LOGGED_IN':
-          return true; // Already checked for logged in user
+          return true;
         case 'PLAN_GATED':
-          if (q.requiredPlans.length === 0) {
-            return true; // No specific plan required
+          if (!q.requiredPlans || q.requiredPlans.length === 0) {
+            return true;
           }
-          // Check if user has any of the required plans
           const requiredPlans = q.requiredPlans.split(',').map(p => p.trim());
           return requiredPlans.some(requiredPlan => userPlans.includes(requiredPlan));
         default:
@@ -62,13 +59,12 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(availableQuestionnaires);
+
   } catch (error) {
     console.error('Failed to fetch questionnaires:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

@@ -1,11 +1,9 @@
 // src/app/api/blackbox/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { authHelper } from "@/lib/auth/server";
 
 export const runtime = "nodejs";
-
-const prisma = new PrismaClient();
 
 function bad(status: number, code: string, extra?: Record<string, any>) {
   return NextResponse.json({ ok: false, error: code, ...extra }, { status });

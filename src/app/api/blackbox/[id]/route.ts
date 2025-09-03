@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/server";
-
-const prisma = new PrismaClient();
 
 function ok<T>(data: T, init?: ResponseInit) {
   return NextResponse.json({ ok: true, ...data } as any, init);

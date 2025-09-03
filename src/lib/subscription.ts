@@ -1,6 +1,5 @@
 // src/lib/subscription.ts
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export type SubscriptionSnapshot = {
   id: string;

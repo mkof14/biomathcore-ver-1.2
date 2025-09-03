@@ -59,7 +59,7 @@ model VerificationToken {
 // Subscription models
 model Subscription {
   id                   String    @id @default(cuid())
-  userId               String    @unique
+  userId               String
   user                 User      @relation(fields: [userId], references: [id])
   stripeSubscriptionId String?   @unique
   stripePriceId        String?

@@ -1,11 +1,9 @@
 // src/app/api/subscription/refresh/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
-
-const prisma = new PrismaClient();
 
 function bad(status: number, error: string) {
   return NextResponse.json({ ok: false, error }, { status });

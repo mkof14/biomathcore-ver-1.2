@@ -1,30 +1,55 @@
-import type { NextAuthOptions, User } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaClient } from '@prisma/client';
+import type { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+
+const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'database', // Use database-backed sessions
+  },
   providers: [
-    Credentials({
-      name: "credentials",
+    CredentialsProvider({
+      name: 'Credentials',
       credentials: {
-        email: { label: "email", type: "text" },
-        password: { label: "password", type: "password" }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null;
-        const user: Partial<User> = { id: credentials.email, email: credentials.email };
-        return user as User;
+        if (!credentials?.email || !credentials.password) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (user) {
+          // In a real app, you'd also check the password hash here
+          // For now, we'll just return the user if they exist.
+          return { id: user.id, email: user.email, name: user.name, role: user.role };
+        } else {
+          // Optionally, create a new user on first login
+          // For now, just return null if user not found
+          return null;
+        }
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user?.email) token.email = user.email;
-      return token;
-    },
-    async session({ session, token }) {
-      if (token?.email && session.user) session.user.email = String(token.email);
+    async session({ session, user }) {
+      // Add id and role to the session object
+      if (session.user) {
+        session.user.id = user.id;
+        (session.user as any).role = user.role;
+      }
       return session;
-    }
-  }
+    },
+  },
+  pages: {
+    signIn: '/sign-in',
+  },
+  secret: process.env.NEXTAUTH_SECRET, // A secret is required for production
 };

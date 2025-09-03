@@ -3,20 +3,85 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-enum FormStatus {
+// Core authentication models for NextAuth.js
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user") // 'user' or 'admin'
+  accounts      Account[]
+  sessions      Session[]
+  subscriptions Subscription[]
+  questionnaireInstances QuestionnaireInstance[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Subscription models
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id])
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  plan                 String? // e.g., "core", "premium_sexual_health"
+  status               String? // e.g., "active", "trialing", "canceled"
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+
+// Enums for the new Questionnaire system
+enum QuestionnaireStatus {
   DRAFT
   ACTIVE
   ARCHIVED
 }
 
-enum Visibility {
-  PUBLIC
-  INVITE_ONLY
-  PLAN_GATED
+enum QuestionnaireVisibility {
+  PUBLIC      // For everyone, even logged out
+  LOGGED_IN   // For any logged-in user
+  PLAN_GATED  // Requires a specific plan
 }
 
 enum QuestionType {
@@ -29,98 +94,72 @@ enum QuestionType {
   MULTI_CHOICE
 }
 
-enum Sensitivity {
-  NONE
-  LOW
-  MEDIUM
-  HIGH
+// The main questionnaire definition
+model Questionnaire {
+  id            String                  @id @default(cuid())
+  slug          String                  @unique
+  title         String
+  description   String?
+  category      String?
+  status        QuestionnaireStatus     @default(ACTIVE)
+  visibility    QuestionnaireVisibility @default(LOGGED_IN)
+  requiredPlans String                  @default("") // Comma-separated list of plan slugs
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  sections  QuestionnaireSection[]
+  instances QuestionnaireInstance[]
 }
 
-enum InstanceStatus {
-  DRAFT
-  SUBMITTED
-}
+model QuestionnaireSection {
+  id              String @id @default(cuid())
+  questionnaireId String
+  title           String
+  description     String?
+  order           Int    @default(0)
 
-model Form {
-  id               String     @id @default(cuid())
-  slug             String     @unique
-  title            String
-  i18n             Json?
-  category         String?
-  status           FormStatus @default(ACTIVE)
-  visibility       Visibility @default(PUBLIC)
-  gates            String[]   @default([])
-  sensitive        Boolean    @default(false)
-  anonymousAllowed Boolean    @default(false)
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-
-  sections  FormSection[]
-  instances FormInstance[]
-}
-
-model FormSection {
-  id     String @id @default(cuid())
-  formId String
-  title  String
-  order  Int    @default(0)
-
-  form      Form       @relation(fields: [formId], references: [id], onDelete: Cascade)
-  questions Question[]
+  questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  questions     Question[]
 }
 
 model Question {
-  id          String       @id @default(cuid())
-  sectionId   String
-  label       String
-  type        QuestionType
-  required    Boolean      @default(false)
-  options     String[]     @default([])
-  sensitivity Sensitivity  @default(NONE)
-  order       Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           String       @id @default(cuid())
+  sectionId    String
+  text         String
+  questionType QuestionType
+  isRequired   Boolean      @default(false)
+  options      String?      // Storing JSON as a string for SQLite compatibility
+  order        Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  section FormSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  section QuestionnaireSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   answers Answer[]
 }
 
-model FormInstance {
-  id          String         @id @default(cuid())
-  formId      String
-  userId      String?
-  isAnonymous Boolean        @default(false)
-  status      InstanceStatus @default(DRAFT)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+// An instance of a user filling out a questionnaire
+model QuestionnaireInstance {
+  id              String   @id @default(cuid())
+  questionnaireId String
+  userId          String
+  status          String   @default("IN_PROGRESS") // e.g., IN_PROGRESS, COMPLETED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
 
-  form     Form            @relation(fields: [formId], references: [id], onDelete: Cascade)
-  answers  Answer[]
-  consents ConsentRecord[]
+  questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers       Answer[]
 }
 
 model Answer {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   instanceId String
   questionId String
-  value      Json?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  value      String // Storing JSON as a string for SQLite compatibility
 
-  Instance FormInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
-  Question Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  instance QuestionnaireInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  question Question              @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([instanceId, questionId])
-}
-
-model ConsentRecord {
-  id         String   @id @default(cuid())
-  instanceId String
-  kind       String
-  granted    Boolean
-  timestamp  DateTime @default(now())
-  ip         String?
-  userAgent  String?
-
-  Instance FormInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
 }

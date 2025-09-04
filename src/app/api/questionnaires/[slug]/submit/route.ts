@@ -1,93 +1,68 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
-import { z } from 'zod';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/options";
 
-// A more specific schema for validating incoming answers.
-const answerSchema = z.object({
-  questionId: z.string().cuid(), // Expect a CUID for the question ID
-  value: z.union([
-    z.string(),
-    z.number(),
-    z.boolean(),
-    z.array(z.string()),
-  ]),
-});
+type AnswerPayload = { questionId: string; value: any };
 
-const submitBodySchema = z.array(answerSchema);
-
-export async function POST(
-  request: Request,
-  { params }: { params: { slug: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
-
-  const slug = params.slug;
-  if (!slug) {
-    return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
-  }
-
-  const body = await request.json();
-  const parsedAnswers = submitBodySchema.safeParse(body);
-
-  if (!parsedAnswers.success) {
-    return NextResponse.json(
-      { error: 'Invalid answers format', issues: parsedAnswers.error.issues },
-      { status: 400 }
-    );
-  }
-
+export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
-    const questionnaire = await prisma.questionnaire.findUnique({
+    const { slug } = await params;
+    const body = await req.json().catch(() => ({}));
+    const answers: AnswerPayload[] = Array.isArray(body?.answers) ? body.answers : [];
+
+    const q = await prisma.questionnaire.findUnique({
       where: { slug },
-      select: { id: true, visibility: true, requiredPlans: true },
+      include: { sections: { include: { questions: true } } },
     });
+    if (!q) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    if (!questionnaire) {
-      return NextResponse.json({ error: 'Questionnaire not found' }, { status: 404 });
-    }
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email || null;
 
-    // Authorization check
-    if (questionnaire.visibility === 'PLAN_GATED') {
+    if (q.visibility === "LOGGED_IN" || q.visibility === "PLAN_GATED") {
+      if (!email) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+      if (q.visibility === "PLAN_GATED") {
         const user = await prisma.user.findUnique({
-            where: { id: session.user.id },
-            include: { subscriptions: { where: { status: 'active' } } },
+          where: { email },
+          include: { subscriptions: { where: { status: "active" } } },
         });
-        if (!user || user.role !== 'admin') {
-            const userPlans = user?.subscriptions.map(s => s.plan).filter(Boolean) as string[] || [];
-            const requiredPlans = questionnaire.requiredPlans.split(',').map(p => p.trim()).filter(Boolean);
-            if (requiredPlans.length > 0 && !requiredPlans.some(p => userPlans.includes(p))) {
-                return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-            }
-        }
+        const plans = new Set((user?.subscriptions || []).map(s => s.plan).filter(Boolean) as string[]);
+        const reqPlans = (q.requiredPlans || "").split(",").map(s => s.trim()).filter(Boolean);
+        const ok = reqPlans.length === 0 || reqPlans.some(p => plans.has(p));
+        if (!ok) return NextResponse.json({ error: "Required plan not active" }, { status: 403 });
+      }
     }
 
-    const newInstance = await prisma.questionnaireInstance.create({
-        data: {
-            questionnaireId: questionnaire.id,
-            userId: session.user.id,
-            status: 'COMPLETED',
-            completedAt: new Date(),
-            answers: {
-                create: parsedAnswers.data.map(answer => ({
-                    questionId: answer.questionId,
-                    value: JSON.stringify(answer.value),
-                })),
-            },
-        },
-        include: {
-            answers: true,
-        }
+    if (!email) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    const instance = await prisma.questionnaireInstance.create({
+      data: { questionnaireId: q.id, userId: user.id, status: "IN_PROGRESS" },
     });
 
-    return NextResponse.json({ success: true, instanceId: newInstance.id }, { status: 201 });
+    const validQIds = new Set(q.sections.flatMap(s => s.questions.map(qq => qq.id)));
+    const createAnswers = answers
+      .filter(a => a && a.questionId && validQIds.has(a.questionId))
+      .map(a => ({
+        instanceId: instance.id,
+        questionId: a.questionId,
+        value: JSON.stringify(a.value ?? null),
+      }));
 
-  } catch (error) {
-    console.error(`Failed to submit questionnaire ${slug}:`, error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    if (createAnswers.length > 0) {
+      await prisma.answer.createMany({ data: createAnswers });
+      await prisma.questionnaireInstance.update({
+        where: { id: instance.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+    }
+
+    return NextResponse.json({ ok: true, instanceId: instance.id, saved: createAnswers.length });
+  } catch (error: any) {
+    console.error("Submit failed:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

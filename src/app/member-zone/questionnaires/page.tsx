@@ -1,60 +1,71 @@
 "use client";
+import useSWR from "swr";
+import Link from "next/link";
 
-import Link from 'next/link';
-import { Questionnaire } from '@prisma/client';
-import useSWR from 'swr';
+type Questionnaire = {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  visibility: "PUBLIC"|"LOGGED_IN"|"PLAN_GATED";
+  requiredPlans: string;
+};
 
-const fetcher = (url: string) => fetch(url).then((res) => {
-  if (!res.ok) {
-    throw new Error('Failed to fetch questionnaires');
-  }
-  return res.json();
-});
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
+function PlanBadge({ visibility, requiredPlans }: { visibility: Questionnaire["visibility"]; requiredPlans: string }) {
+  if (visibility === "PUBLIC") return <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">Public</span>;
+  if (visibility === "LOGGED_IN") return <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">Members</span>;
+  return (
+    <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+      Requires plan: {requiredPlans || "Any premium"}
+    </span>
+  );
+}
 
 export default function QuestionnairesPage() {
-  const { data: questionnaires, error, isLoading } = useSWR<Questionnaire[]>('/api/questionnaires', fetcher);
+  const { data, error } = useSWR<Questionnaire[]>("/api/questionnaires", fetcher);
 
-  const groupedByCategory = !questionnaires ? {} : questionnaires.reduce((acc, q) => {
-    const category = q.category || 'General';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(q);
+  if (error) return <div className="p-6">Failed to load questionnaires.</div>;
+  const questionnaires = data || [];
+  const grouped = questionnaires.reduce((acc: Record<string, Questionnaire[]>, q) => {
+    const k = q.category || "General";
+    acc[k] = acc[k] || [];
+    acc[k].push(q);
     return acc;
-  }, {} as Record<string, Questionnaire[]>);
-
-  if (isLoading) {
-    return <div className="p-8 text-center">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-center text-red-500">Error: {error.message}</div>;
-  }
+  }, {});
 
   return (
-    <div className="p-4 sm:p-6 md:p-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Available Questionnaires</h1>
-
-      {!questionnaires || questionnaires.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">No questionnaires available at the moment.</p>
-      ) : (
-        <div className="space-y-8">
-          {Object.entries(groupedByCategory).map(([category, qs]) => (
-            <div key={category}>
-              <h2 className="text-2xl font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200">{category}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {qs.map((q) => (
-                  <Link href={`/member-zone/questionnaires/${q.slug}`} key={q.id}>
-                    <div className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
-                      <h3 className="text-xl font-bold text-violet-700 dark:text-violet-400 mb-2">{q.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-400">{q.description}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Questionnaires</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Complete your profile to unlock personalized AI-driven reports.
+          </p>
         </div>
+      </div>
+
+      {Object.keys(grouped).length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-400">No questionnaires available.</p>
+      ) : (
+        Object.entries(grouped).map(([category, items]) => (
+          <section key={category} className="space-y-4">
+            <h2 className="text-lg font-medium">{category}</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {items.map((q) => (
+                <Link key={q.id} href={`/member-zone/questionnaires/${q.slug}`} className="rounded-2xl border hover:shadow-sm transition p-4 block">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-semibold">{q.title}</h3>
+                    <PlanBadge visibility={q.visibility} requiredPlans={q.requiredPlans} />
+                  </div>
+                  {q.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">{q.description}</p>}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))
       )}
     </div>
   );

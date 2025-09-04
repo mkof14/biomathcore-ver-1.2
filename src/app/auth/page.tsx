@@ -1,41 +1,55 @@
-// src/app/auth/page.tsx
-import type { Metadata } from "next";
+"use client";
+import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 
-export const metadata: Metadata = {
-  title: "Sign In / Up • BioMath Core",
-  description: "Authenticate to access your BioMath Core account.",
+type Provider = {
+  id: string;
+  name: string;
+  type: string;
+  signinUrl: string;
+  callbackUrl: string;
 };
 
 export default function AuthPage() {
-  return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <div className="max-w-md mx-auto px-6 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight">
-          Sign In / Sign Up
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Demo UI — connect to your auth later.
-        </p>
+  const [providers, setProviders] = useState<Record<string, Provider> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-        <form className="mt-6 grid gap-3">
-          <input
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            placeholder="Email"
-            type="email"
-          />
-          <input
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            placeholder="Password"
-            type="password"
-          />
-          <button
-            type="button"
-            className="mt-2 inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-white text-sm hover:bg-indigo-700"
-          >
-            Continue
-          </button>
-        </form>
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/auth/providers", { cache: "no-store" });
+        const data = await r.json();
+        setProviders(data && typeof data === "object" ? data : {});
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) {
+    return <main className="min-h-screen flex items-center justify-center">Loading…</main>;
+  }
+
+  const entries = Object.entries(providers ?? {});
+  return (
+    <main className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md space-y-4 border rounded-xl p-6">
+        <h1 className="text-2xl font-semibold text-center">Sign In / Sign Up</h1>
+        <div className="space-y-3">
+          {entries.map(([id, p]) => (
+            <button
+              key={id}
+              onClick={() => signIn(p.id, { callbackUrl: "/" })}
+              className="w-full border rounded-lg py-2 px-4 hover:bg-gray-50"
+            >
+              Continue with {p.name}
+            </button>
+          ))}
+          {entries.length === 0 && (
+            <div className="text-sm text-red-600 text-center">No OAuth providers configured</div>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

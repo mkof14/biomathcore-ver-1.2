@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import { getServerSessionSafe } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/options";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const session = await getServerSessionSafe();
-  const email = session?.user?.email || null;
-  if (!email) return NextResponse.json({ ok: false, error: "UNAUTHENTICATED" }, { status: 401 });
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
-
-  const reports = await prisma.report.findMany({
+  const list = await prisma.report.findMany({
     where: { userId: user.id },
-    select: { id: true, title: true, createdAt: true, updatedAt: true },
     orderBy: { createdAt: "desc" },
-    take: 100,
+    select: { id: true, title: true, type: true, createdAt: true },
   });
 
-  return NextResponse.json({ ok: true, items: reports });
+  return NextResponse.json(list);
 }

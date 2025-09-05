@@ -1,84 +1,72 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import SectionHeader from "@/components/SectionHeader";
-import { Card, CardHeader, CardTitle, CardBody } from "@/components/ui/CardToned";
 
-type Row = {
+import useSWR from "swr";
+import Link from "next/link";
+import { useMemo } from "react";
+
+type ReportListItem = {
   id: string;
   title: string;
-  status: string;
-  createdAt: string | number;
-  updatedAt: string | number;
+  type: string;
+  createdAt: string;
 };
 
-export default function ReportsPage() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [err, setErr] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then((r) => {
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+});
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch("/api/reports?limit=20", { cache: "no-store" });
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const j = await r.json();
-        const data: Row[] = Array.isArray(j?.data) ? j.data : [];
-        setRows(data);
-      } catch (e: any) {
-        setErr(e?.message || "Failed to load");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+export default function ReportsPage() {
+  const { data, error, isLoading } = useSWR<ReportListItem[]>("/api/reports/list", fetcher, {
+    revalidateOnFocus: false,
+  });
+
+  const items = useMemo(() => Array.isArray(data) ? data : [], [data]);
 
   return (
-    <div className="p-6 space-y-6">
-      <SectionHeader
-        title="Reports"
-        desc="Browse and manage generated reports."
-      />
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Reports</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Your generated reports.
+          </p>
+        </div>
+        <form method="post" action="/api/reports/generate">
+          <input type="hidden" name="type" value="core" />
+          <button className="px-4 py-2 rounded-2xl bg-black text-white hover:opacity-90">
+            Generate Core Report
+          </button>
+        </form>
+      </div>
 
-      <Card tone="slate">
-        <CardHeader>
-          <CardTitle>Latest</CardTitle>
-        </CardHeader>
-        <CardBody>
-          {err && <div className="text-red-400 text-sm mb-3">Error: {err}</div>}
-          {loading ? (
-            <div className="text-sm text-neutral-400">Loading…</div>
-          ) : rows.length === 0 ? (
-            <div className="text-sm text-neutral-400">No reports yet.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-neutral-400">
-                  <tr>
-                    <th className="py-2 pr-4">Title</th>
-                    <th className="py-2 pr-4">Status</th>
-                    <th className="py-2 pr-4">Created</th>
-                    <th className="py-2">Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.id} className="border-t border-neutral-800">
-                      <td className="py-2 pr-4">{r.title}</td>
-                      <td className="py-2 pr-4 capitalize">{r.status}</td>
-                      <td className="py-2 pr-4">
-                        {new Date(r.createdAt).toLocaleString()}
-                      </td>
-                      <td className="py-2">
-                        {new Date(r.updatedAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardBody>
-      </Card>
+      {isLoading && <p>Loading…</p>}
+      {error && <p className="text-red-600">Failed to load reports.</p>}
+
+      {!isLoading && !error && items.length === 0 && (
+        <p className="text-gray-600 dark:text-gray-400">No reports yet.</p>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-4">
+        {items.map((r, idx) => {
+          const key = r?.id || `${r?.type || "unknown"}-${idx}`;
+          return (
+            <Link
+              key={key}
+              href={`/member-zone/reports/${r.id}`}
+              className="rounded-2xl border p-4 hover:shadow-sm transition bg-white/70 dark:bg-white/5"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">{r.title || "Report"}</h3>
+                <span className="text-xs px-2 py-0.5 rounded-full border">{r.type}</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {new Date(r.createdAt).toLocaleString()}
+              </p>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

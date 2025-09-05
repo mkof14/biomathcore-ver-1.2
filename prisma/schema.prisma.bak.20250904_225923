@@ -47,8 +47,6 @@ model User {
   questionnaireInstances QuestionnaireInstance[]
   reports                Report[]
   reportRequests         ReportRequest[]
-  UserServiceSelection   UserServiceSelection[]
-  ServiceSelection       ServiceSelection[]
 }
 
 model VerificationToken {
@@ -186,53 +184,4 @@ model Report {
 
   request ReportRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model UserServiceSelection {
-  id        String   @id @default(cuid())
-  userId    String
-  serviceId String
-  selected  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, serviceId])
-}
-
-model Category {
-  id        String   @id @default(cuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  services Service[]
-}
-
-model Service {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  categoryId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category             Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  selections           ServiceSelection[]
-  UserServiceSelection UserServiceSelection[]
-}
-
-model ServiceSelection {
-  id         String   @id @default(cuid())
-  userId     String
-  categoryId String
-  serviceId  String
-  createdAt  DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, serviceId])
 }

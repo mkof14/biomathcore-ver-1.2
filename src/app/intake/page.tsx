@@ -15,7 +15,8 @@ export default async function IntakeIndex() {
   const forms = allForms();
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-2">Questionnaires</h1>
+      <div className="mb-4"><BackButton href="/member-zone" /></div>
+<h1 className="text-2xl font-semibold mb-2">Questionnaires</h1>
       <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
         Choose a form to start or continue.
       </p>

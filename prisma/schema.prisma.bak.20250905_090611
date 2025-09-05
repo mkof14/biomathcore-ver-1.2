@@ -48,7 +48,6 @@ model User {
   reports                Report[]
   reportRequests         ReportRequest[]
   UserServiceSelection   UserServiceSelection[]
-  ServiceSelection       ServiceSelection[]
 }
 
 model VerificationToken {
@@ -188,6 +187,19 @@ model Report {
   user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Service {
+  id                   String                  @id @default(cuid())
+  slug                 String                  @unique
+  title                String
+  description          String?
+  category             String?
+  visibility           QuestionnaireVisibility @default(LOGGED_IN)
+  requiredPlans        String                  @default("")
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  UserServiceSelection UserServiceSelection[]
+}
+
 model UserServiceSelection {
   id        String   @id @default(cuid())
   userId    String
@@ -202,28 +214,6 @@ model UserServiceSelection {
   @@unique([userId, serviceId])
 }
 
-model Category {
-  id        String   @id @default(cuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  services Service[]
-}
-
-model Service {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  categoryId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category             Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  selections           ServiceSelection[]
-  UserServiceSelection UserServiceSelection[]
-}
-
 model ServiceSelection {
   id         String   @id @default(cuid())
   userId     String
@@ -231,8 +221,9 @@ model ServiceSelection {
   serviceId  String
   createdAt  DateTime @default(now())
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  service  Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, serviceId])
 }

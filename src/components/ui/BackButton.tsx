@@ -1,34 +1,12 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
-
-type Props = { hrefFallback?: string; className?: string; label?: string };
-
-export default function BackButton({
-  hrefFallback = "/member/intake",
-  className = "",
-  label = "Back",
-}: Props) {
-  const router = useRouter();
-  const onClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-    } else {
-      window.location.href = hrefFallback;
-    }
-  }, [router, hrefFallback]);
-
+import Link from "next/link";
+export default function BackButton({ href = "/member-zone/questionnaires" }: { href?: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label="Go back"
-      className={`inline-flex items-center gap-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 ${className}`}
-      style={{ lineHeight: 1.1 }}
+    <Link
+      href={href}
+      className="inline-flex items-center px-4 py-2 rounded-2xl border hover:bg-gray-100 dark:hover:bg-gray-800 transition"
     >
-      <span aria-hidden>←</span>
-      <span>{label}</span>
-    </button>
+      ← Back
+    </Link>
   );
 }

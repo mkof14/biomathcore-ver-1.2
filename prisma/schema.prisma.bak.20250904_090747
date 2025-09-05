@@ -7,6 +7,7 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// Core authentication models for NextAuth.js
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -35,20 +36,16 @@ model Session {
 }
 
 model User {
-  id                     String                  @id @default(cuid())
-  name                   String?
-  email                  String?                 @unique
-  emailVerified          DateTime?
-  image                  String?
-  role                   String                  @default("user")
-  accounts               Account[]
-  sessions               Session[]
-  subscriptions          Subscription[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user") // 'user' or 'admin'
+  accounts      Account[]
+  sessions      Session[]
+  subscriptions Subscription[]
   questionnaireInstances QuestionnaireInstance[]
-  reports                Report[]
-  reportRequests         ReportRequest[]
-  UserServiceSelection   UserServiceSelection[]
-  ServiceSelection       ServiceSelection[]
 }
 
 model VerificationToken {
@@ -59,19 +56,22 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// Subscription models
 model Subscription {
   id                   String    @id @default(cuid())
   userId               String
   user                 User      @relation(fields: [userId], references: [id])
   stripeSubscriptionId String?   @unique
   stripePriceId        String?
-  plan                 String?
-  status               String?
+  plan                 String? // e.g., "core", "premium_sexual_health"
+  status               String? // e.g., "active", "trialing", "canceled"
   currentPeriodEnd     DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 }
 
+
+// Enums for the new Questionnaire system
 enum QuestionnaireStatus {
   DRAFT
   ACTIVE
@@ -79,9 +79,9 @@ enum QuestionnaireStatus {
 }
 
 enum QuestionnaireVisibility {
-  PUBLIC
-  LOGGED_IN
-  PLAN_GATED
+  PUBLIC      // For everyone, even logged out
+  LOGGED_IN   // For any logged-in user
+  PLAN_GATED  // Requires a specific plan
 }
 
 enum QuestionType {
@@ -94,6 +94,7 @@ enum QuestionType {
   MULTI_CHOICE
 }
 
+// The main questionnaire definition
 model Questionnaire {
   id            String                  @id @default(cuid())
   slug          String                  @unique
@@ -102,8 +103,7 @@ model Questionnaire {
   category      String?
   status        QuestionnaireStatus     @default(ACTIVE)
   visibility    QuestionnaireVisibility @default(LOGGED_IN)
-  requiredPlans String                  @default("")
-  priority      Int                     @default(100)
+  requiredPlans String                  @default("") // Comma-separated list of plan slugs
   createdAt     DateTime                @default(now())
   updatedAt     DateTime                @updatedAt
 
@@ -112,11 +112,11 @@ model Questionnaire {
 }
 
 model QuestionnaireSection {
-  id              String  @id @default(cuid())
+  id              String @id @default(cuid())
   questionnaireId String
   title           String
   description     String?
-  order           Int     @default(0)
+  order           Int    @default(0)
 
   questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
   questions     Question[]
@@ -128,7 +128,7 @@ model Question {
   text         String
   questionType QuestionType
   isRequired   Boolean      @default(false)
-  options      String?
+  options      String?      // Storing JSON as a string for SQLite compatibility
   order        Int          @default(0)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
@@ -137,13 +137,14 @@ model Question {
   answers Answer[]
 }
 
+// An instance of a user filling out a questionnaire
 model QuestionnaireInstance {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
   questionnaireId String
   userId          String
-  status          String    @default("IN_PROGRESS")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  status          String   @default("IN_PROGRESS") // e.g., IN_PROGRESS, COMPLETED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   completedAt     DateTime?
 
   questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
@@ -155,84 +156,10 @@ model Answer {
   id         String @id @default(cuid())
   instanceId String
   questionId String
-  value      String
+  value      String // Storing JSON as a string for SQLite compatibility
 
   instance QuestionnaireInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
   question Question              @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([instanceId, questionId])
-}
-
-model ReportRequest {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  status    String   @default("QUEUED")
-  payload   String?
-  createdAt DateTime @default(now())
-
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  report Report?
-}
-
-model Report {
-  id        String   @id @default(cuid())
-  requestId String   @unique
-  userId    String
-  type      String
-  title     String
-  markdown  String
-  createdAt DateTime @default(now())
-
-  request ReportRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model UserServiceSelection {
-  id        String   @id @default(cuid())
-  userId    String
-  serviceId String
-  selected  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, serviceId])
-}
-
-model Category {
-  id        String   @id @default(cuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  services Service[]
-}
-
-model Service {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  categoryId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category             Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  selections           ServiceSelection[]
-  UserServiceSelection UserServiceSelection[]
-}
-
-model ServiceSelection {
-  id         String   @id @default(cuid())
-  userId     String
-  categoryId String
-  serviceId  String
-  createdAt  DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, serviceId])
 }

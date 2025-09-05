@@ -7,7 +7,7 @@ const items = [
   { href: "/member-zone/dashboard", title: "Dashboard" },
   { href: "/member-zone/reports", title: "Reports" },
   { href: "/member-zone/questionnaires", title: "Questionnaires" },
-  
+  { href: "/member-zone/reports", title: "Reports" },
 { href: "/member-zone/ai", title: "AI" },
   { href: "/member-zone/voice", title: "Voice" },
   { href: "/member-zone/drug-gene", title: "Drug–Gene" },
@@ -16,7 +16,6 @@ const items = [
   { href: "/member-zone/notifications", title: "Notifications" },
   { href: "/member-zone/integrations", title: "Integrations" },
   { href: "/member-zone/settings", title: "Settings" },
-  { href: "/member-zone/catalog", title: "Catalog" },
 ];
 
 export default function MemberNav() {

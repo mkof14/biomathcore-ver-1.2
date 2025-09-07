@@ -4,19 +4,22 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { text } = await req.json();
+    if (!text || typeof text !== "string") {
+      return new NextResponse("No text", { status: 400 });
+    }
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages,
-        stream: true,
-        temperature: 0.3,
+        model: "gpt-4o-mini-tts",
+        voice: "verse",
+        input: text,
+        format: "mp3",
       }),
     });
 
@@ -26,9 +29,12 @@ export async function POST(req: Request) {
     }
 
     return new Response(resp.body, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "no-store",
+      },
     });
-  } catch (e: any) {
+  } catch {
     return new NextResponse("Server error", { status: 500 });
   }
 }

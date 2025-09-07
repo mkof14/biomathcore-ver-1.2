@@ -18,10 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      <AppHeader />
-              <DarkModeProvider><main className="pt-24">{children}</main></DarkModeProvider>
-        <Footer /><PulseDock />
-    </body>
+        <AppHeader />
+        <DarkModeProvider>
+          <main className="pt-24">{children}</main>
+        </DarkModeProvider>
+        <Footer />
+        <PulseDock />
+      </body>
     </html>
   );
 }

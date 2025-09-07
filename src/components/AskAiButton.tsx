@@ -14,11 +14,11 @@ export default function AskAiButton() {
       className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3
                  bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-elev-1
                  transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
-      aria-label="Ask AI Assistant"
+      aria-label="Ask Pulse AI"
       type="button"
     >
       <Sparkles className="h-5 w-5" />
-      Ask AI Assistant
+      Ask Pulse AI
     </button>
   );
 }

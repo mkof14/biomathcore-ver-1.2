@@ -66,7 +66,7 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">AI Assistant (Black Box)</h1>
+        <h1 className="text-2xl font-semibold">Pulse AI (Black Box)</h1>
         <div className="flex gap-2">
           <EndpointBadge path="/api/blackbox/health" />
           <EndpointBadge path="/api/blackbox?limit=20" />

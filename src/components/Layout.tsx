@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Notifications from "@/components/Notifications";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
@@ -22,7 +21,7 @@ export default function RootLayout({
         <Header />
         <LoadingSpinner />
         <main className="flex-grow">{children}</main>
-        <Footer />
+        
         <Notifications />
       </body>
     </html>

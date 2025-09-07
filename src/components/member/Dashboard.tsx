@@ -82,9 +82,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Card 2: Sleep Efficiency */}
+        {/* Card 2: Sleep & Recovery Efficiency */}
         <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-          <p className="text-xs text-gray-400">Sleep Efficiency</p>
+          <p className="text-xs text-gray-400">Sleep & Recovery Efficiency</p>
           <p className="text-xl text-white font-semibold mt-1">89%</p>
           <div className="mt-2 text-[11px] text-cyan-300">Target ≥ 85%</div>
           <div className="mt-3">

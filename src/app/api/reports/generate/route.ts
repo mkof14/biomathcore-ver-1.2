@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     data: { userId: user.id, type, status: "QUEUED", payload: payload ? JSON.stringify(payload) : null },
   });
 
-  const title = type === "core" ? "Core Health Report" : type === "sexual_health" ? "Sexual Health Report" : "Longevity Report";
+  const title = type === "core" ? "Critical Health Report" : type === "sexual_health" ? "General Sexual Longevity & Anti-Aging Report" : "Longevity & Anti-Aging Report";
   const markdown = `# ${title}\n\nGenerated at: ${new Date().toISOString()}\n\nUser: ${session.user.email}\nType: ${type}\n`;
 
   await prisma.report.create({

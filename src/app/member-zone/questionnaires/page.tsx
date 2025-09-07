@@ -26,8 +26,8 @@ const shades: Record<string,string> = {
   "Lifestyle":      "bg-indigo-100/60 hover:bg-indigo-100 text-indigo-900 ring-indigo-300/80",
   "Women's Health": "bg-pink-100/60 hover:bg-pink-100 text-pink-900 ring-pink-300/80",
   "Men's Health":   "bg-cyan-100/60 hover:bg-cyan-100 text-cyan-900 ring-cyan-300/80",
-  "Sexual Health":  "bg-fuchsia-100/60 hover:bg-fuchsia-100 text-fuchsia-900 ring-fuchsia-300/80",
-  "Longevity":      "bg-amber-100/60 hover:bg-amber-100 text-amber-900 ring-amber-300/80",
+  "General Sexual Longevity & Anti-Aging":  "bg-fuchsia-100/60 hover:bg-fuchsia-100 text-fuchsia-900 ring-fuchsia-300/80",
+  "Longevity & Anti-Aging":      "bg-amber-100/60 hover:bg-amber-100 text-amber-900 ring-amber-300/80",
   "General":        "bg-white/30 hover:bg-white/40 text-gray-900 ring-gray-300/80",
 };
 
@@ -52,7 +52,7 @@ export default function Page() {
     return acc;
   }, {});
 
-  const order = ["Core Profile","Medical","Lifestyle","Men's Health","Women's Health","Sexual Health","Longevity","General"];
+  const order = ["Core Profile","Medical","Lifestyle","Men's Health","Women's Health","General Sexual Longevity & Anti-Aging","Longevity & Anti-Aging","General"];
   const cats = Object.keys(grouped).sort((a,b)=> {
     const ia=order.indexOf(a), ib=order.indexOf(b);
     return (ia===-1?999:ia)-(ib===-1?999:ib) || a.localeCompare(b);

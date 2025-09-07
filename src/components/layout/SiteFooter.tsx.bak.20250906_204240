@@ -1,0 +1,117 @@
+"use client";
+import Link from "next/link";
+
+function SocialIcon({
+  label, href, className, children,
+}: { label: string; href: string; className?: string; children: React.ReactNode }) {
+  return (
+    <Link
+      aria-label={label}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={[
+        "inline-flex h-9 w-9 items-center justify-center rounded-full",
+        "border border-white/10 bg-white/0 hover:bg-white/5 hover:border-white/20",
+        "transition",
+        className ?? "",
+      ].join(" ")}
+    >
+      {children}
+    </Link>
+  );
+}
+
+/** Брендовые SVG (цвет берут из currentColor) */
+const IconFB = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M22 12.06C22 6.49 17.52 2 11.94 2S2 6.49 2 12.06c0 4.98 3.64 9.11 8.4 9.94v-7.03H8.26V12.1h2.14v-1.85c0-2.12 1.26-3.29 3.18-3.29.92 0 1.88.16 1.88.16v2.06h-1.06c-1.05 0-1.38.65-1.38 1.31v1.61h2.35l-.38 2.87h-1.97v7.03c4.76-.83 8.4-4.96 8.4-9.94z"/>
+  </svg>
+);
+const IconYT = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M23.5 6.2a3.2 3.2 0 0 0-2.25-2.26C19.6 3.5 12 3.5 12 3.5s-7.6 0-9.25.44A3.2 3.2 0 0 0 .5 6.2 33.5 33.5 0 0 0 0 12a33.5 33.5 0 0 0 .5 5.8 3.2 3.2 0 0 0 2.25 2.26C4.4 20.5 12 20.5 12 20.5s7.6 0 9.25-.44A3.2 3.2 0 0 0 23.5 17.8 33.5 33.5 0 0 0 24 12a33.5 33.5 0 0 0-.5-5.8zM9.75 15.5v-7l6 3.5-6 3.5z"/>
+  </svg>
+);
+const IconIG = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5zM18 6.2a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 18 6.2z"/>
+  </svg>
+);
+const IconIN = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M4 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H4Zm3 8h2v7H7v-7Zm1-3a1.2 1.2 0 1 1 0-2.4A1.2 1.2 0 0 1 8 8Zm4 3h2v1.1A2.6 2.6 0 0 1 16.3 11c2 0 3.7 1.6 3.7 4.3V18h-2v-2.4c0-1.4-.5-2.4-1.7-2.4-1 0-1.6.7-1.8 1.3V18h-2v-7Z"/>
+  </svg>
+);
+const IconX  = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M3 3h4.7l4.1 5.7L16.9 3H21l-7.1 9.2L21 21h-4.7l-4.3-6-4.6 6H3l7.3-9.5L3 3Z"/>
+  </svg>
+);
+
+export default function SiteFooter() {
+  const year = new Date().getFullYear();
+  return (
+    <footer className="mt-20 border-t border-white/10 bg-[#0b0f1a] text-gray-300">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+          {/* Бренд без иконки-логотипа */}
+          <div>
+            <Link href="/" className="flex items-center gap-3">
+              <span className="text-xl font-semibold">
+                <span className="text-cyan-400">Bio</span>Math <span className="text-white/90">Core</span>
+              </span>
+            </Link>
+            <p className="mt-3 text-sm text-gray-400">
+              Wellness management platform with AI-driven insights and tools.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-3 font-semibold text-white">
+          </div>
+
+          <div>
+            <h3 className="mb-3 font-semibold text-white">Legal</h3>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/legal/privacy">Privacy Policy</Link></li>
+              <li><Link href="/legal/terms">Terms of Service</Link></li>
+              <li><Link href="/legal/hipaa">HIPAA Notice</Link></li>
+              <li><Link href="/legal/data-protection">Data Protection</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-3 font-semibold text-white">Contact</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="mailto:info@biomathcore.com">info@biomathcore.com</a></li>
+              <li>Charlotte, NC 28202, USA</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Соцсети — цветные брендовые */}
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <SocialIcon label="Facebook" href="https://facebook.com/" className="text-[#1877F2]"><IconFB /></SocialIcon>
+          <SocialIcon label="YouTube" href="https://youtube.com/" className="text-[#FF0000]"><IconYT /></SocialIcon>
+          <SocialIcon label="Instagram" href="https://instagram.com/" className="text-[#E4405F]"><IconIG /></SocialIcon>
+          <SocialIcon label="LinkedIn" href="https://linkedin.com/" className="text-[#0A66C2]"><IconIN /></SocialIcon>
+          <SocialIcon label="X" href="https://x.com/" className="text-white"><IconX /></SocialIcon>
+        </div>
+
+        {/* Нотиc — чуть мельче и серее */}
+        <div className="mt-6 px-2 text-center text-[11px] leading-relaxed text-gray-400">
+          <strong className="text-gray-300">Important Notice:</strong> BioMath Core is a wellness management
+          platform, not a medical service. We provide well-being data analytics and an AI tracker for improving
+          your well-being and mood, as well as an educational AI health chat. We do not diagnose diseases,
+          prescribe medications, replace a professional doctor, or provide medical advice. Always consult with a
+          qualified medical professional for health concerns.
+        </div>
+
+        <div className="mt-3 text-center text-[11px] text-gray-500">
+          © {year} BioMath Core. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  );
+}

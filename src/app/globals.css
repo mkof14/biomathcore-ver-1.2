@@ -162,3 +162,26 @@ input::placeholder, textarea::placeholder {
   background-color: #7c3aed; /* violet-600 */
   border-color: #7c3aed;
 }
+
+/* LEGAL hard override */
+.legal-content, .legal-content * {
+  color: #111827 !important; /* gray-900 */
+}
+.dark .legal-content, .dark .legal-content * {
+  color: #e5e7eb !important; /* gray-200 */
+}
+.legal-content a {
+  text-decoration: underline !important;
+  color: #1d4ed8 !important; /* blue-700 */
+}
+.dark .legal-content a {
+  color: #93c5fd !important; /* blue-300 */
+}
+
+.legal-content, .legal-content * { color: #111827 !important; }
+.dark .legal-content, .dark .legal-content * { color: #e5e7eb !important; }
+.legal-content a { text-decoration: underline !important; color: #1d4ed8 !important; }
+.dark .legal-content a { color: #93c5fd !important; }
+
+
+@keyframes spin-slow{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}

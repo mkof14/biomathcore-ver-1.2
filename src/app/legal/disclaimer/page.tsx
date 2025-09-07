@@ -1,32 +1,5 @@
+import LegalNote from "@/components/legal/LegalNote";
 // src/app/legal/disclaimer/page.tsx
-import React from "react";
-
-export const metadata = { title: "Disclaimer • BioMath Core" };
-
-export default function DisclaimerPage() {
-  return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-extrabold mb-6">Disclaimer</h1>
-
-      <p className="mb-4">
-        The information provided by BioMath Core is for informational and
-        educational purposes only. It is not intended to be, and should not be,
-        used as a substitute for professional medical advice, diagnosis, or
-        treatment. Always seek the advice of your physician or other qualified
-        health provider with any questions you may have regarding a medical
-        condition.
-      </p>
-
-      <p className="mb-4">
-        BioMath Core makes no guarantees about the accuracy, completeness, or
-        timeliness of the information presented. Your use of the Service is at
-        your sole risk.
-      </p>
-
-      <p className="text-sm text-gray-600 mt-8">
-        This is a demo page. The full Disclaimer will be available in the actual
-        version of the site.
-      </p>
-    </div>
-  );
+import React from "react"; export const metadata = { title: "Disclaimer • BioMath Core" }; export default function DisclaimerPage() { return (<div className="legal-content text-gray-900 dark:text-gray-100 leading-relaxed not- "> <div className="max-w-3xl mx-auto px-6 py-12"> <h1 className="text-4xl font-extrabold mb-6">Disclaimer</h1> <p className="mb-4"> The information provided by BioMath Core is for informational and educational purposes only. It is not intended to be, and should not be, used as a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. </p> <p className="mb-4"> BioMath Core makes no guarantees about the accuracy, completeness, or timeliness of the information presented. Your use of the Service is at your sole risk. </p> <p className="text-sm text-gray-900 mt-8"> This is a demo page. The full Disclaimer will be available in the actual version of the site. </p> <div className="mt-12 pt-4 border-t text-sm text-gray-800 dark:text-gray-200">
+<strong></div> </div>  </div>);
 }

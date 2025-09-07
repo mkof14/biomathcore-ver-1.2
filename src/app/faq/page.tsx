@@ -48,14 +48,14 @@ const faqs = [
   },
   {
     q: 'What services are available in the "Everyday Wellness" category?',
-    a: "Sleep trackers, nutrition trackers, activity recommendations, lifestyle advice.",
+    a: "Sleep & Recovery trackers, nutrition trackers, activity recommendations, lifestyle advice.",
   },
   {
-    q: 'What is the "Longevity & Anti-Aging" category?',
+    q: 'What is the "Longevity & Anti-Aging & Anti-Aging" category?',
     a: "A section aimed at slowing biological aging.",
   },
   {
-    q: 'What services are available in the "Longevity & Anti-Aging" category?',
+    q: 'What services are available in the "Longevity & Anti-Aging & Anti-Aging" category?',
     a: "Biological age analysis, antioxidant recommendations, genetic factors.",
   },
   {
@@ -91,35 +91,35 @@ const faqs = [
     a: "Testosterone analysis, cardiovascular risks, sexual health.",
   },
   {
-    q: 'What is the "Beauty & Skincare" category?',
+    q: 'What is the "Beauty & Skincare & Skincare" category?',
     a: "Skin, appearance, aging biomarkers.",
   },
   {
-    q: 'What services are available in the "Beauty & Skincare" category?',
+    q: 'What services are available in the "Beauty & Skincare & Skincare" category?',
     a: "Skin condition analysis, care recommendations, nutraceuticals.",
   },
   {
-    q: 'What is the "Nutrition & Diet" category?',
-    a: "Nutrition, nutrients, metabolism.",
+    q: 'What is the "Nutrition & Diet & Diet" category?',
+    a: "Nutrition & Diet, nutrients, metabolism.",
   },
   {
-    q: 'What services are available in the "Nutrition & Diet" category?',
+    q: 'What services are available in the "Nutrition & Diet & Diet" category?',
     a: "Personalized nutrition plans, micronutrient analysis.",
   },
   {
-    q: 'What is the "Sleep & Recovery" category?',
-    a: "Sleep, recovery, circadian rhythms.",
+    q: 'What is the "Sleep & Recovery & Recovery" category?',
+    a: "Sleep & Recovery, recovery, circadian rhythms.",
   },
   {
-    q: 'What services are available in the "Sleep & Recovery" category?',
-    a: "Sleep trackers, recommendations for improving sleep quality.",
+    q: 'What services are available in the "Sleep & Recovery & Recovery" category?',
+    a: "Sleep & Recovery trackers, recommendations for improving sleep quality.",
   },
   {
-    q: 'What is the "Environmental Health" category?',
+    q: 'What is the "Environmental Health Health" category?',
     a: "Impact of the environment on health.",
   },
   {
-    q: 'What services are available in the "Environmental Health" category?',
+    q: 'What services are available in the "Environmental Health Health" category?',
     a: "Pollution analysis, protection recommendations.",
   },
   {
@@ -160,27 +160,27 @@ const faqs = [
     a: "Vision tests, eye protection recommendations.",
   },
   {
-    q: 'What is the "General Sexual Longevity" category?',
+    q: 'What is the "General Sexual Longevity & Anti-Aging" category?',
     a: "Sexual health and longevity.",
   },
   {
-    q: 'What services are available in the "General Sexual Longevity" category?',
+    q: 'What services are available in the "General Sexual Longevity & Anti-Aging" category?',
     a: "Hormonal analysis, improvement recommendations.",
   },
   {
-    q: 'What is the "Men\'s Sexual Health" category?',
+    q: 'What is the "Men\'s General Sexual Longevity & Anti-Aging" category?',
     a: "Specific aspects of male sexuality.",
   },
   {
-    q: 'What services are available in the "Men\'s Sexual Health" category?',
+    q: 'What services are available in the "Men\'s General Sexual Longevity & Anti-Aging" category?',
     a: "Testosterone analysis, erectile function.",
   },
   {
-    q: 'What is the "Women\'s Sexual Health" category?',
+    q: 'What is the "Women\'s General Sexual Longevity & Anti-Aging" category?',
     a: "Specific aspects of female sexuality.",
   },
   {
-    q: 'What services are available in the "Women\'s Sexual Health" category?',
+    q: 'What services are available in the "Women\'s General Sexual Longevity & Anti-Aging" category?',
     a: "Hormonal balance, libido, reproductive health.",
   },
   {

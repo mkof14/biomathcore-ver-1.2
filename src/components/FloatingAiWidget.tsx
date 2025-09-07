@@ -36,7 +36,7 @@ export default function FloatingAiWidget() {
         <div className="fixed bottom-24 right-5 z-50">
           <div className="relative">
             <AiChat />
-            <button
+            <button data-ai-fab="1" data-ai-fab="1"
               onClick={() => toggleChat("close")}
               className="absolute top-2 right-2 p-1 bg-gray-700 rounded-full text-white hover:bg-gray-600"
               aria-label="Close chat"
@@ -48,12 +48,12 @@ export default function FloatingAiWidget() {
         </div>
       )}
 
-      <button
+      <button data-ai-fab="1"
         onClick={() => toggleChat("toggle")}
         className="fixed bottom-5 right-5 z-50 w-16 h-16 bg-violet-600 rounded-full shadow-lg
                    flex items-center justify-center text-white hover:bg-violet-700
                    transition-transform hover:scale-110"
-        aria-label={isOpen ? "Close AI assistant" : "Open AI assistant"}
+        aria-label={isOpen ? "Close Pulse AI" : "Open Pulse AI"}
         type="button"
       >
         {isOpen ? <X size={30} /> : <Bot size={30} />}

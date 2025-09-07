@@ -79,7 +79,7 @@ export default function DashboardSection({ userId }: { userId: string }) {
           </div>
           <div className="bg-gray-100 dark:bg-gray-900 p-4 rounded-xl shadow text-center">
             <h4 className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">
-              Sleep
+              Sleep & Recovery
             </h4>
             <p className="text-2xl font-bold">
               {data.sleep !== undefined ? data.sleep : "..."}

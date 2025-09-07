@@ -1,34 +1,13 @@
-// src/app/legal/page.tsx
 import Link from "next/link";
-
 export default function LegalIndex() {
-  const items = [
-    { label: "Privacy Policy", href: "/legal/privacy" },
-    { label: "Terms of Service", href: "/legal/terms" },
-    { label: "HIPAA Notice", href: "/legal/hipaa" },
-    { label: "Security", href: "/legal/security" },
-    { label: "Disclaimer", href: "/legal/disclaimer" },
-  ];
   return (
-    <main>
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-4xl font-bold mb-6">Legal</h1>
-        <p className="text-gray-700 mb-6">
-          Find our policies and notices below.
-        </p>
-        <ul className="space-y-3">
-          {items.map((i) => (
-            <li key={i.href}>
-              <Link
-                href={i.href}
-                className="text-indigo-700 hover:text-indigo-900 underline"
-              >
-                {i.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <main className="mx-auto max-w-3xl px-6 py-16 space-y-4">
+      <h1 className="text-3xl font-bold">Legal</h1>
+      <ul className="list-disc ml-6 space-y-2">
+        <li><Link href="/legal/privacy" className="underline">Privacy Policy</Link></li>
+        <li><Link href="/legal/terms" className="underline">Terms of Service</Link></li>
+        <li><Link href="/legal/contacts" className="underline">Contact</Link></li>
+      </ul>
     </main>
   );
 }

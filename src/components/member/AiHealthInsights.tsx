@@ -17,8 +17,8 @@ export default function AiHealthInsights() {
       desc: "Slight dip in activity minutes last 3 days, try a light run today.",
     },
     {
-      title: "Sleep",
-      desc: "Sleep efficiency remains stable; consistent schedule is helping.",
+      title: "Sleep & Recovery",
+      desc: "Sleep & Recovery efficiency remains stable; consistent schedule is helping.",
     },
   ]);
 

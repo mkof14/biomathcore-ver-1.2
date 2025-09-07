@@ -65,7 +65,7 @@ const allCategories: Category[] = [
       },
       {
         id: "sleep-mood",
-        title: "Sleep-Mood Link",
+        title: "Sleep & Recovery-Mood Link",
         icon: "🌙",
         description: "Analyzes sleep impact on mood.",
       },
@@ -210,7 +210,7 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "Longevity & Anti-Aging",
+    name: "Longevity & Anti-Aging & Anti-Aging",
     icon: "⏳",
     color: "yellow",
     description:
@@ -459,7 +459,7 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "Beauty & Skincare",
+    name: "Beauty & Skincare & Skincare",
     icon: "💄",
     color: "rose",
     description: "Skin, appearance, and aging biomarker management.",
@@ -521,10 +521,10 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "Nutrition & Diet",
+    name: "Nutrition & Diet & Diet",
     icon: "🍎",
     color: "orange",
-    description: "Nutrition, metabolism, and dietary optimization.",
+    description: "Nutrition & Diet, metabolism, and dietary optimization.",
     services: [
       {
         id: "food-swap",
@@ -546,7 +546,7 @@ const allCategories: Category[] = [
       },
       {
         id: "nut-dec",
-        title: "Nutrition Label Decoder",
+        title: "Nutrition & Diet Label Decoder",
         icon: "📋",
         description: "Explains nutrition labels.",
       },
@@ -583,10 +583,10 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "Sleep & Recovery",
+    name: "Sleep & Recovery & Recovery",
     icon: "🌙",
     color: "cyan",
-    description: "Sleep quality, recovery, and circadian rhythm management.",
+    description: "Sleep & Recovery quality, recovery, and circadian rhythm management.",
     services: [
       {
         id: "blue-plan",
@@ -596,7 +596,7 @@ const allCategories: Category[] = [
       },
       {
         id: "sleep-coach",
-        title: "Sleep Hygiene Coach",
+        title: "Sleep & Recovery Hygiene Coach",
         icon: "🛏️",
         description: "Improves sleep habits.",
       },
@@ -608,7 +608,7 @@ const allCategories: Category[] = [
       },
       {
         id: "apnea-screen",
-        title: "Sleep Apnea Screener",
+        title: "Sleep & Recovery Apnea Screener",
         icon: "😴",
         description: "Screens for sleep apnea.",
       },
@@ -620,13 +620,13 @@ const allCategories: Category[] = [
       },
       {
         id: "sleep-opt",
-        title: "Sleep Environment Optimizer",
+        title: "Sleep & Recovery Environment Optimizer",
         icon: "🌬️",
         description: "Enhances sleep environment.",
       },
       {
         id: "guided-sleep",
-        title: "Guided Sleep Meditation",
+        title: "Guided Sleep & Recovery Meditation",
         icon: "🌜",
         description: "Provides guided sleep sessions.",
       },
@@ -638,14 +638,14 @@ const allCategories: Category[] = [
       },
       {
         id: "sleep-mood",
-        title: "Sleep-Mood Connection Analysis",
+        title: "Sleep & Recovery-Mood Connection Analysis",
         icon: "😊",
         description: "Links sleep to mood.",
       },
     ],
   },
   {
-    name: "Environmental Health",
+    name: "Environmental Health Health",
     icon: "🌍",
     color: "lime",
     description: "Impact of environment on health and mitigation strategies.",
@@ -658,7 +658,7 @@ const allCategories: Category[] = [
       },
       {
         id: "env-exp",
-        title: "Environmental Exposure",
+        title: "Environmental Health Exposure",
         icon: "🌫️",
         description: "Tracks environmental risks.",
       },
@@ -824,7 +824,7 @@ const allCategories: Category[] = [
       },
       {
         id: "long-gene",
-        title: "Longevity Gene Expression Report",
+        title: "Longevity & Anti-Aging Gene Expression Report",
         icon: "🧬",
         description: "Analyzes longevity genes.",
       },
@@ -1079,7 +1079,7 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "General Sexual Longevity",
+    name: "General Sexual Longevity & Anti-Aging",
     icon: "❤️",
     color: "rose",
     description: "Enhancing sexual health and longevity.",
@@ -1092,7 +1092,7 @@ const allCategories: Category[] = [
       },
       {
         id: "sex-biom",
-        title: "Sexual Health Biomarkers",
+        title: "General Sexual Longevity & Anti-Aging Biomarkers",
         icon: "📊",
         description: "Tracks sexual health markers.",
       },
@@ -1141,7 +1141,7 @@ const allCategories: Category[] = [
     ],
   },
   {
-    name: "Men's Sexual Health",
+    name: "Men's General Sexual Longevity & Anti-Aging",
     icon: "♂️",
     color: "teal",
     description: "Targeted solutions for men’s sexual health.",
@@ -1178,7 +1178,7 @@ const allCategories: Category[] = [
       },
       {
         id: "lib-nut",
-        title: "Libido-Boosting Nutrition for Men",
+        title: "Libido-Boosting Nutrition & Diet for Men",
         icon: "🍽️",
         description: "Boosts libido with diet.",
       },
@@ -1196,14 +1196,14 @@ const allCategories: Category[] = [
       },
       {
         id: "men-edu",
-        title: "Sexual Health Education for Men",
+        title: "General Sexual Longevity & Anti-Aging Education for Men",
         icon: "📚",
         description: "Educates on men’s sexual health.",
       },
     ],
   },
   {
-    name: "Women's Sexual Health",
+    name: "Women's General Sexual Longevity & Anti-Aging",
     icon: "♀️",
     color: "pink",
     description: "Tailored care for women’s sexual well-being.",
@@ -1216,7 +1216,7 @@ const allCategories: Category[] = [
       },
       {
         id: "lib-nut-f",
-        title: "Libido-Boosting Nutrition",
+        title: "Libido-Boosting Nutrition & Diet",
         icon: "🍽️",
         description: "Boosts libido with diet.",
       },
@@ -1246,7 +1246,7 @@ const allCategories: Category[] = [
       },
       {
         id: "post-sex",
-        title: "Postpartum Sexual Health",
+        title: "Postpartum General Sexual Longevity & Anti-Aging",
         icon: "🤰",
         description: "Supports postpartum recovery.",
       },
@@ -1258,7 +1258,7 @@ const allCategories: Category[] = [
       },
       {
         id: "wom-edu",
-        title: "Sexual Health Education for Women",
+        title: "General Sexual Longevity & Anti-Aging Education for Women",
         icon: "📚",
         description: "Educates on women’s sexual health.",
       },

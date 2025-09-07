@@ -21,51 +21,6 @@ const topPages: FooterSection = {
   ],
 };
 
-/** All service categories (20) */
-const serviceCategories: FooterSection = {
-  title: "Service Categories",
-  links: [
-    { label: "Critical Health", href: "/categories/critical-health" },
-    { label: "Everyday Wellness", href: "/categories/everyday-wellness" },
-    {
-      label: "Longevity & Anti-Aging",
-      href: "/categories/longevity-anti-aging",
-    },
-    { label: "Mental Wellness", href: "/categories/mental-wellness" },
-    { label: "Fitness & Performance", href: "/categories/fitness-performance" },
-    { label: "Women’s Health", href: "/categories/womens-health" },
-    { label: "Men’s Health", href: "/categories/mens-health" },
-    { label: "Beauty & Skincare", href: "/categories/beauty-skincare" },
-    { label: "Nutrition & Diet", href: "/categories/nutrition-diet" },
-    { label: "Sleep & Recovery", href: "/categories/sleep-recovery" },
-    { label: "Environmental Health", href: "/categories/environmental-health" },
-    { label: "Family Health", href: "/categories/family-health" },
-    {
-      label: "Preventive Medicine & Longevity",
-      href: "/categories/preventive-medicine-longevity",
-    },
-    {
-      label: "Biohacking & Performance",
-      href: "/categories/biohacking-performance",
-    },
-    { label: "Senior Care", href: "/categories/senior-care" },
-    { label: "Eye-Health Suite", href: "/categories/eye-health-suite" },
-    {
-      label: "Digital Therapeutics Store",
-      href: "/categories/digital-therapeutics-store",
-    },
-    {
-      label: "General Sexual Longevity",
-      href: "/categories/general-sexual-longevity",
-    },
-    { label: "Men's Sexual Health", href: "/categories/mens-sexual-health" },
-    {
-      label: "Women's Sexual Health",
-      href: "/categories/womens-sexual-health",
-    },
-  ],
-};
-
 /** Company */
 const company: FooterSection = {
   title: "Company",
@@ -93,7 +48,6 @@ const legal: FooterSection = {
 
 export const footerSections: FooterSection[] = [
   topPages,
-  serviceCategories,
   company,
   legal,
 ];

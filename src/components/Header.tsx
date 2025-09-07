@@ -11,7 +11,7 @@ import ThemeToggle from "@/components/ThemeToggle";
  * - Light/Dark theme supported via ThemeToggle
  * - Mobile dropdown preserved
  * - Requirements:
- *   - Remove "AI Assistant" and "Contact" from the menu
+ *   - Remove "🤖 AI Assistant" and "Contact" from the menu
  *   - Add "Pricing" to the menu
  *   - Keep "Member" label (Member Zone was renamed earlier)
  */
@@ -25,7 +25,7 @@ const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/investors", label: "Investors" },
   // Intentionally removed:
   // { href: "/contact", label: "Contact" },
-  // { href: "/ai-assistant", label: "AI Assistant" },
+  // { href: "/ai-assistant", label: "🤖 AI Assistant" },
 ];
 
 function cx(...parts: Array<string | false | undefined>) {

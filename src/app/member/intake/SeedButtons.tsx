@@ -45,8 +45,8 @@ export default function SeedButtons() {
   return (
     <div className="mb-4 flex flex-wrap gap-2">
       {btn("Create Core Profile (test)", "core-profile")}
-      {btn("Create Mental Health (test)", "mental-health-intake")}
-      {btn("Create Sexual Health — Core (test)", "sexual-health-core")}
+      {btn("Create Mental Wellness (test)", "mental-health-intake")}
+      {btn("Create General Sexual Longevity & Anti-Aging — Core (test)", "sexual-health-core")}
     </div>
   );
 }

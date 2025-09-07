@@ -1,0 +1,240 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type Category = { id: string; title: string; isCoreIncluded?: boolean };
+type UI = Category & { selected: boolean };
+
+// Core plan price
+const CORE_PRICE = 19;
+// MAX plan cap
+const MAX_CAP = 79;
+
+// Per-category monthly prices (only extra, non-core)
+const PRICES: Record<string, number> = {
+  "Critical Health": 4,
+  "Everyday Wellness": 4,
+  "Longevity & Anti-Aging": 6,
+  "Mental Wellness": 4,
+  "Fitness & Performance": 4,
+  "Women’s Health": 5,
+  "Men’s Health": 5,
+  "Beauty & Skincare": 4,
+  "Nutrition & Diet": 3,
+  "Sleep & Recovery": 3,
+  "Environmental Health": 3,
+  "Family Health": 4,
+  "Preventive Medicine & Longevity": 6,
+  "Biohacking & Performance": 5,
+  "Senior Care": 3,
+  "Eye-Health Suite": 3,
+  "Digital Therapeutics Store": 4,
+  "General Sexual Longevity": 5,
+  "Men's Sexual Health": 5,
+  "Women's Sexual Health": 5,
+};
+
+function priceFor(title: string) {
+  return PRICES[title] ?? 4;
+}
+
+export default function CatalogCategoriesClient() {
+  const [items, setItems] = useState<UI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const [catsRes, selRes] = await Promise.all([
+        fetch("/api/catalog/categories", { cache: "no-store" }).then((r) => r.json()),
+        fetch("/api/user/category-selections", { cache: "no-store" }).then((r) => r.json()),
+      ]);
+
+      const selectedIds = new Set<string>((selRes?.categoryIds ?? []) as string[]);
+      const cats = (catsRes?.categories ?? []) as Category[];
+      const ui: UI[] = cats.map((c) => ({ ...c, selected: selectedIds.has(c.id) }));
+      setItems(ui);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const totals = useMemo(() => {
+    const extras = items.filter((c) => c.selected && !c.isCoreIncluded);
+    const extrasCost = extras.reduce((sum, c) => sum + priceFor(c.title), 0);
+    const total = CORE_PRICE + extrasCost;
+    const pct = Math.max(0, Math.min(100, Math.round((total / MAX_CAP) * 100)));
+    return { extras, extrasCost, total, pct };
+  }, [items]);
+
+  async function toggle(c: UI) {
+    if (c.isCoreIncluded) return;
+    setBusyId(c.id);
+    try {
+      const res = await fetch("/api/user/category-selections", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryId: c.id, selected: !c.selected }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setItems((prev) => prev.map((x) => (x.id === c.id ? { ...x, selected: !x.selected } : x)));
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update selection");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-2xl sm:text-3xl font-semibold">Catalog</h1>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        Choose additional categories to add on top of your Core plan. Core-included categories are
+        already active and cannot be unselected.
+      </p>
+
+      {/* Pricing Summary / Calculator */}
+      <div className="mt-6 rounded-2xl border bg-white/80 dark:bg-neutral-900/70 backdrop-blur px-4 py-5
+                      border-gray-200 dark:border-neutral-800 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200
+                           dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700">
+            Core: ${CORE_PRICE}/mo
+          </span>
+          <span className="text-sm px-3 py-1 rounded-full bg-violet-50 text-violet-800 border border-violet-200
+                           dark:bg-violet-900/20 dark:text-violet-200 dark:border-violet-700">
+            Extras: ${totals.extrasCost}/mo ({totals.extras.length})
+          </span>
+          <span className="text-sm px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200
+                           dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-700">
+            Total: ${totals.total}/mo
+          </span>
+        </div>
+
+        {/* Progress to MAX */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+            <span>Progress to MAX ($79)</span>
+            <span>{totals.pct}%</span>
+          </div>
+          <div className="mt-1 h-2 rounded-full bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-blue-400 to-violet-500 dark:from-blue-500 dark:to-violet-500 transition-all"
+              style={{ width: `${totals.pct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* MAX banner */}
+        {totals.total >= MAX_CAP && (
+          <div className="mt-4 rounded-xl border bg-amber-50 text-amber-900 border-amber-200
+                          dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-700 px-3 py-2">
+            Your monthly total is ${totals.total}. Consider <b>MAX</b> ($79/mo): all categories included.
+            <a href="/member-zone/plan" className="ml-2 underline decoration-dotted hover:opacity-80">
+              See plans
+            </a>
+          </div>
+        )}
+
+        {/* Selected extras list */}
+        {totals.extras.length > 0 && (
+          <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+            Selected extras:&nbsp;
+            {totals.extras.map((x, i) => (
+              <span key={x.id}>
+                {x.title} (+${priceFor(x.title)})
+                {i < totals.extras.length - 1 ? ", " : ""}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Grid of categories */}
+      {loading ? (
+        <div className="mt-8 text-sm opacity-70">Loading…</div>
+      ) : (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((c) => {
+            const tint = c.isCoreIncluded
+              ? "bg-emerald-50/70 border-emerald-200 dark:bg-emerald-900/15 dark:border-emerald-700"
+              : c.selected
+              ? "bg-violet-50/70 border-violet-200 dark:bg-violet-900/15 dark:border-violet-700"
+              : "bg-gray-50/70 border-gray-200 dark:bg-neutral-900/70 dark:border-neutral-800";
+            const price = c.isCoreIncluded ? 0 : priceFor(c.title);
+
+            return (
+              <div key={c.id} className={`rounded-2xl border shadow-sm transition hover:shadow ${tint} p-4`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold leading-tight">{c.title}</h3>
+                    {!c.isCoreIncluded && (
+                      <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                        +${price}/mo if selected
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status chip */}
+                  {c.isCoreIncluded ? (
+                    <span className="text-[11px] rounded-full px-2 py-1 border
+                                     bg-emerald-100 text-emerald-800 border-emerald-200
+                                     dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-700">
+                      Core
+                    </span>
+                  ) : c.selected ? (
+                    <span className="text-[11px] rounded-full px-2 py-1 border
+                                     bg-violet-100 text-violet-800 border-violet-200
+                                     dark:bg-violet-900/30 dark:text-violet-200 dark:border-violet-700">
+                      Selected
+                    </span>
+                  ) : (
+                    <span className="text-[11px] rounded-full px-2 py-1 border
+                                     bg-blue-100 text-blue-800 border-blue-200
+                                     dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-700">
+                      Add
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Category services are provided in the next step.
+                </p>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <button
+                    onClick={() => toggle(c)}
+                    disabled={c.isCoreIncluded || busyId === c.id}
+                    className={[
+                      "text-sm rounded-xl px-3 py-2 border transition",
+                      c.isCoreIncluded
+                        ? "bg-gray-100 dark:bg-neutral-800 text-gray-500 border-gray-200 dark:border-neutral-700 cursor-not-allowed"
+                        : c.selected
+                        ? "bg-violet-100 dark:bg-violet-900/30 text-violet-900 dark:text-violet-100 border-violet-200 dark:border-violet-700 hover:opacity-90"
+                        : "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 border-blue-200 dark:border-blue-700 hover:opacity-90",
+                    ].join(" ")}
+                  >
+                    {c.isCoreIncluded ? "Included in Core" : busyId === c.id ? "Saving..." : c.selected ? "Selected — Remove" : "Select"}
+                  </button>
+
+                  {!c.isCoreIncluded && (
+                    <span className="text-xs px-2 py-1 rounded-md bg-white/70 border border-gray-200
+                                     dark:bg-neutral-900/70 dark:border-neutral-800">
+                      +${price}/mo
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -81,7 +81,7 @@ export function createJob(
       summary: "Analysis complete. Your vitals look good overall.",
       insights: [
         "HRV trending upward last 7 days",
-        "Sleep efficiency slightly below optimal on weekdays",
+        "Sleep & Recovery efficiency slightly below optimal on weekdays",
         "Consider increasing hydration and light exposure before noon",
       ],
     };

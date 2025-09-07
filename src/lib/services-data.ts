@@ -40,15 +40,15 @@ export interface ServiceItem {
 export const CATEGORIES: Category[] = [
   { key: "critical-health", title: "Critical Health" },
   { key: "everyday-wellness", title: "Everyday Wellness" },
-  { key: "longevity-anti-aging", title: "Longevity & Anti‑Aging" },
+  { key: "longevity-anti-aging", title: "Longevity & Anti-Aging & Anti‑Aging" },
   { key: "mental-wellness", title: "Mental Wellness" },
   { key: "fitness-performance", title: "Fitness & Performance" },
   { key: "womens-health", title: "Women's Health" },
   { key: "mens-health", title: "Men's Health" },
-  { key: "beauty-skincare", title: "Beauty & Skincare" },
-  { key: "nutrition-diet", title: "Nutrition & Diet" },
-  { key: "sleep-recovery", title: "Sleep & Recovery" },
-  { key: "environmental-health", title: "Environmental Health" },
+  { key: "beauty-skincare", title: "Beauty & Skincare & Skincare" },
+  { key: "nutrition-diet", title: "Nutrition & Diet & Diet" },
+  { key: "sleep-recovery", title: "Sleep & Recovery & Recovery" },
+  { key: "environmental-health", title: "Environmental Health Health" },
   { key: "family-health", title: "Family Health" },
   {
     key: "preventive-medicine-longevity",
@@ -57,9 +57,9 @@ export const CATEGORIES: Category[] = [
   { key: "biohacking-performance", title: "Biohacking & Performance" },
   { key: "senior-care", title: "Senior Care" },
   { key: "eye-health-suite", title: "Eye‑Health Suite" },
-  { key: "general-sexual-longevity", title: "General Sexual Longevity" },
-  { key: "mens-sexual-health", title: "Men's Sexual Health" },
-  { key: "womens-sexual-health", title: "Women's Sexual Health" },
+  { key: "general-sexual-longevity", title: "General Sexual Longevity & Anti-Aging" },
+  { key: "mens-sexual-health", title: "Men's General Sexual Longevity & Anti-Aging" },
+  { key: "womens-sexual-health", title: "Women's General Sexual Longevity & Anti-Aging" },
   { key: "digital-therapeutics-store", title: "Digital Therapeutics Store" },
 ];
 
@@ -95,7 +95,7 @@ correlates them with sleep and lifestyle inputs, and produces clear, actionable 
   },
   {
     slug: "sleep-mood-link",
-    title: "Sleep‑Mood Link",
+    title: "Sleep & Recovery‑Mood Link",
     emoji: "🌙",
     shortDescription:
       "Analyzes how sleep quality and timing influence your mood trends.",
@@ -258,7 +258,7 @@ correlates them with sleep and lifestyle inputs, and produces clear, actionable 
   },
   {
     slug: "sexual‑longevity-fundamentals",
-    title: "Sexual Longevity Fundamentals",
+    title: "Sexual Longevity & Anti-Aging Fundamentals",
     emoji: "💞",
     shortDescription:
       "Evidence‑informed lifestyle factors supporting sexual longevity.",
@@ -270,7 +270,7 @@ correlates them with sleep and lifestyle inputs, and produces clear, actionable 
   },
   {
     slug: "mens-sexual-health-guide",
-    title: "Men’s Sexual Health Guide",
+    title: "Men’s General Sexual Longevity & Anti-Aging Guide",
     emoji: "♂️",
     shortDescription:
       "Plain‑language guide and trackers for men’s sexual health.",
@@ -281,7 +281,7 @@ correlates them with sleep and lifestyle inputs, and produces clear, actionable 
   },
   {
     slug: "womens-sexual-health-guide",
-    title: "Women’s Sexual Health Guide",
+    title: "Women’s General Sexual Longevity & Anti-Aging Guide",
     emoji: "♀️",
     shortDescription:
       "Education and gentle routines for women’s sexual health.",

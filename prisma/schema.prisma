@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -49,6 +49,7 @@ model User {
   reportRequests         ReportRequest[]
   UserServiceSelection   UserServiceSelection[]
   ServiceSelection       ServiceSelection[]
+  CategorySelection      CategorySelection[]
 }
 
 model VerificationToken {
@@ -202,15 +203,6 @@ model UserServiceSelection {
   @@unique([userId, serviceId])
 }
 
-model Category {
-  id        String   @id @default(cuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  services Service[]
-}
-
 model Service {
   id          String   @id @default(cuid())
   title       String
@@ -235,4 +227,27 @@ model ServiceSelection {
   service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, serviceId])
+}
+
+model CategorySelection {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId])
+}
+
+model Category {
+  id             String   @id @default(cuid())
+  title          String   @unique
+  isCoreIncluded Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  services          Service[]
+  CategorySelection CategorySelection[]
 }

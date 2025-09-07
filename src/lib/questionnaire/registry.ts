@@ -66,7 +66,7 @@ export const QUESTIONNAIRE_REGISTRY: Record<string, QSchema> = {
         title: "Goals",
         questions: [
           { id: "top_goals", type: "multi", label: "Your top goals", options: [
-            { value: "sleep", label: "Sleep" },
+            { value: "sleep", label: "Sleep & Recovery" },
             { value: "stress", label: "Stress" },
             { value: "weight", label: "Weight" },
             { value: "endurance", label: "Endurance" },
@@ -81,7 +81,7 @@ export const QUESTIONNAIRE_REGISTRY: Record<string, QSchema> = {
         questions: [
           { id: "energy_10", type: "scale", label: "Energy today", min: 0, max: 10, step: 1 },
           { id: "mood_10",   type: "scale", label: "Mood today",   min: 0, max: 10, step: 1 },
-          { id: "sleep_10",  type: "scale", label: "Sleep quality (last night)", min: 0, max: 10, step: 1 }
+          { id: "sleep_10",  type: "scale", label: "Sleep & Recovery quality (last night)", min: 0, max: 10, step: 1 }
         ]
       }
     ],
@@ -134,7 +134,7 @@ export const QUESTIONNAIRE_REGISTRY: Record<string, QSchema> = {
   "sexual-health-core": {
     id: "sexual-health-core",
     version: 1,
-    title: "Sexual Health — Core",
+    title: "General Sexual Longevity & Anti-Aging — Core",
     description: "General topics. You can skip any question.",
     sections: [
       {
@@ -154,7 +154,7 @@ export const QUESTIONNAIRE_REGISTRY: Record<string, QSchema> = {
   "sexual-health-men": {
     id: "sexual-health-men",
     version: 1,
-    title: "Sexual Health — Men",
+    title: "General Sexual Longevity & Anti-Aging — Men",
     sections: [
       {
         id: "men_function",
@@ -189,7 +189,7 @@ export const QUESTIONNAIRE_REGISTRY: Record<string, QSchema> = {
   "sexual-health-women": {
     id: "sexual-health-women",
     version: 1,
-    title: "Sexual Health — Women",
+    title: "General Sexual Longevity & Anti-Aging — Women",
     sections: [
       {
         id: "cycle",

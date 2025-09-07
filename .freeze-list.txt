@@ -1,0 +1,8 @@
+src/components/Header.tsx
+src/components/Footer.tsx
+src/app/page.tsx
+src/app/services/page.tsx
+src/app/pricing/page.tsx
+src/app/member-zone/page.tsx
+src/app/about/page.tsx
+src/app/investors/page.tsx

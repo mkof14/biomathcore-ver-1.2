@@ -53,7 +53,7 @@ export async function generateReport(input: Input) {
   const md = fill(template, { profile, findings, recommendations, sexual_function, hormonal_indicators, lifestyle, risk_indicators });
 
   return {
-    title: input.type === "core" ? "Core Health Report" : input.type === "sexual_health" ? "Sexual Health Report" : "Longevity Report",
+    title: input.type === "core" ? "Critical Health Report" : input.type === "sexual_health" ? "General Sexual Longevity & Anti-Aging Report" : "Longevity & Anti-Aging Report",
     markdown: md + "\n\n" + drafted
   };
 }

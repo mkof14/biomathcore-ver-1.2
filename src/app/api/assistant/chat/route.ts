@@ -2,39 +2,21 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-function sseToTextStream(body: ReadableStream<Uint8Array>) {
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  let buffer = "";
-  return new ReadableStream({
-    start(controller) {
-      const reader = body.getReader();
-      const pump = () =>
-        reader.read().then(({ done, value }) => {
-          if (done) {
-            controller.close();
-            return;
-          }
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split(/\r?\n/);
-          buffer = lines.pop() || "";
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith("data:")) continue;
-            const payload = trimmed.slice(5).trim();
-            if (payload === "[DONE]") continue;
-            try {
-              const json = JSON.parse(payload);
-              const delta = json.choices?.[0]?.delta?.content ?? "";
-              if (delta) controller.enqueue(encoder.encode(delta));
-            } catch {}
-          }
-          pump();
-        });
-      pump();
+async function callModel(model: string, messages: any[]) {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      model,
+      messages,
+      stream: false,
+      temperature: 0.3,
+    }),
   });
+  return r;
 }
 
 export async function POST(req: Request) {
@@ -44,31 +26,29 @@ export async function POST(req: Request) {
     }
 
     const { messages } = await req.json();
+    const candidates = ["gpt-4o-mini", "gpt-4o", "gpt-4o-mini-2024-07-18", "gpt-4o-2024-08-06"];
 
-    const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages,
-        stream: true,
-        temperature: 0.3,
-      }),
-    });
-
-    if (!upstream.ok || !upstream.body) {
-      const t = await upstream.text().catch(() => "Upstream error");
-      return new NextResponse(t, { status: 500 });
+    const errors: string[] = [];
+    for (const model of candidates) {
+      const resp = await callModel(model, messages);
+      if (resp.ok) {
+        const json = await resp.json();
+        const text = json?.choices?.[0]?.message?.content ?? "";
+        return new Response(text, {
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
+      } else {
+        const t = await resp.text().catch(() => "");
+        errors.push(`${model}: ${resp.status} ${resp.statusText} ${t}`);
+        if (resp.status === 401) break;
+      }
     }
 
-    const stream = sseToTextStream(upstream.body);
-    return new Response(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
-  } catch {
-    return new NextResponse("Server error", { status: 500 });
+    return new NextResponse(
+      `Upstream error.\n${errors.join("\n---\n") || "No details"}`,
+      { status: 500 }
+    );
+  } catch (e: any) {
+    return new NextResponse(`Server error: ${e?.message || "unknown"}`, { status: 500 });
   }
 }

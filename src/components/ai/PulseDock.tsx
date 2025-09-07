@@ -44,25 +44,25 @@ export default function PulseDock() {
         <div className="fixed inset-0 z-[9998]">
           <div
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
           />
           <aside className="absolute right-0 top-0 h-full w-full sm:w-[420px] md:w-[520px] lg:w-[560px]
-                            bg-neutral-900 text-white shadow-2xl border-l border-white/10">
-            <div className="flex items-center justify-between h-12 px-4 border-b border-white/10">
-              <div className="inline-flex items-center gap-2 text-sm font-semibold">
-                <PulseIcon className="h-5 w-5" />
+                            bg-white text-neutral-900 shadow-2xl border-l border-neutral-200">
+            <div className="flex items-center justify-between h-12 px-4 border-b border-neutral-200 bg-white/80 backdrop-blur">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800">
+                <PulseIcon className="h-5 w-5 text-violet-600" />
                 Pulse
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-1.5 text-sm bg-white/10 hover:bg-white/15"
+                className="rounded-md px-3 py-1.5 text-sm bg-neutral-100 hover:bg-neutral-200 text-neutral-800"
                 aria-label="Close"
                 type="button"
               >
                 Close
               </button>
             </div>
-            <div className="h-[calc(100%-48px)]">
+            <div className="h-[calc(100%-48px)] bg-white">
               <AssistantCore />
             </div>
           </aside>

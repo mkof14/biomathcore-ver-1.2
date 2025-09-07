@@ -126,12 +126,12 @@ export default function AssistantCore() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-neutral-950 text-neutral-100">
+    <div className="flex h-full w-full flex-col bg-neutral-950 text-neutral-900">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3">
         <div className="flex items-center gap-3">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 ring-1 ring-white/20">
-            <svg viewBox="0 0 48 48" className="h-5 w-5 text-white" aria-hidden="true">
+            <svg viewBox="0 0 48 48" className="h-5 w-5 text-neutral-900" aria-hidden="true">
               <circle cx="24" cy="24" r="20" fill="#A78BFA"/>
               <rect x="12" y="16" width="24" height="16" rx="6" ry="6" fill="none" stroke="white" strokeWidth="2"/>
               <circle cx="19" cy="24" r="3" fill="white"/>
@@ -156,7 +156,7 @@ export default function AssistantCore() {
                 className={
                   m.role === "user"
                     ? "max-w-[80%] rounded-2xl bg-white/20 px-4 py-3 text-neutral-900 ring-1 ring-white/30 backdrop-blur"
-                    : "max-w-[80%] rounded-2xl bg-neutral-800 px-4 py-3 text-neutral-100 ring-1 ring-white/10"
+                    : "max-w-[80%] rounded-2xl bg-neutral-100 px-4 py-3 text-neutral-900 ring-1 ring-neutral-200"
                 }
               >
                 {m.content}
@@ -181,14 +181,14 @@ export default function AssistantCore() {
           type="button"
           onClick={toggleMic}
           aria-label="Voice"
-          className={`h-11 w-11 rounded-full ring-1 ring-white/20 ${recording ? "bg-rose-500 text-white" : "bg-white/70 text-neutral-800"} hover:brightness-110 active:scale-95`}
+          className={`h-11 w-11 rounded-full ring-1 ring-white/20 ${recording ? "bg-rose-500 text-neutral-900" : "bg-white/70 text-neutral-800"} hover:brightness-110 active:scale-95`}
         >
           🎤
         </button>
         <button
           type="submit"
           disabled={busy}
-          className="h-11 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(139,92,246,0.35)] ring-1 ring-white/20 hover:brightness-110 active:scale-95 disabled:opacity-60"
+          className="h-11 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 px-5 text-sm font-semibold text-neutral-900 shadow-[0_8px_24px_rgba(139,92,246,0.35)] ring-1 ring-white/20 hover:brightness-110 active:scale-95 disabled:opacity-60"
         >
           {busy ? "Thinking…" : "Send"}
         </button>

@@ -31,9 +31,9 @@ export default function PulseDock() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Open Pulse"
-        "className="fixed bottom-6 right-6 z-[9999] inline-flex items-center gap-2 rounded-full px-4 py-3
+        className="fixed bottom-6 right-6 z-[9999] inline-flex items-center gap-2 rounded-full px-4 py-3
                    bg-violet-600 text-white font-semibold shadow-[0_14px_40px_rgba(139,92,246,0.45)]
-                   ring-1 ring-white/15 backdrop-blur transition hover:scale-105 hover:bg-violet-500""
+                   ring-1 ring-white/15 backdrop-blur transition hover:scale-105 hover:bg-violet-500"
         type="button"
       >
         <PulseIcon className="h-6 w-6" />
@@ -46,7 +46,7 @@ export default function PulseDock() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
           />
-          <aside className="absolute right-0 top-0 h-full w-full sm:w-[420px] md:w-[520px] lg:w-[560px]
+          <aside className="absolute right-0 top-0 h-full w-full sm:w-[360px] md:w-[420px] lg:w-[480px]
                             bg-white text-neutral-900 shadow-2xl border-l border-neutral-200">
             <div className="flex items-center justify-between h-12 px-4 border-b border-neutral-200 bg-white/80 backdrop-blur">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800">

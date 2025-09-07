@@ -8,7 +8,6 @@ export default function PulseDock() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => setMounted(true), []);
-
   useEffect(() => {
     const handler = (e: Event) => {
       try {
@@ -28,17 +27,19 @@ export default function PulseDock() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Open Pulse"
-        className="fixed bottom-6 right-6 z-[9999] inline-flex items-center gap-2 rounded-full px-4 py-3
-                   bg-violet-600 text-white font-semibold shadow-[0_14px_40px_rgba(139,92,246,0.45)]
-                   ring-1 ring-white/15 backdrop-blur transition hover:scale-105 hover:bg-violet-500"
-        type="button"
-      >
-        <PulseIcon className="h-6 w-6" />
-        AI Assistant
-      </button>
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open Pulse"
+          className="fixed bottom-6 right-6 z-[9999] inline-flex items-center gap-2 rounded-full px-4 py-3
+                     bg-violet-600 text-white font-semibold shadow-[0_14px_40px_rgba(139,92,246,0.45)]
+                     ring-1 ring-white/15 backdrop-blur transition hover:scale-105 hover:bg-violet-500"
+          type="button"
+        >
+          <PulseIcon className="h-6 w-6" />
+          AI Assistant
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[9998]">
@@ -46,7 +47,7 @@ export default function PulseDock() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
           />
-          <aside className="absolute right-0 top-0 h-full w-full sm:w-[360px] md:w-[420px] lg:w-[480px]
+          <aside className="absolute right-0 top-0 h-full w-full sm:w-[320px] md:w-[380px] lg:w-[420px]
                             bg-white text-neutral-900 shadow-2xl border-l border-neutral-200">
             <div className="flex items-center justify-between h-12 px-4 border-b border-neutral-200 bg-white/80 backdrop-blur">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800">

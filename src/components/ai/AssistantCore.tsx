@@ -182,7 +182,7 @@ export default function AssistantCore() {
   return (
     <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
-        <div className="mx-auto max-w-[560px] space-y-3">
+        <div className="mx-auto max-w-[700px] space-y-3">
           {messages.map((m) => (
             <div key={m.id} className="flex">
               <div
@@ -202,7 +202,7 @@ export default function AssistantCore() {
 
       <div className="h-px w-full bg-white/10" />
 
-      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[600px] items-center gap-2 p-2.5">
+      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[720px] items-center gap-2 p-2.5">
         <button
           type="button"
           onClick={toggleRec}
@@ -219,7 +219,7 @@ export default function AssistantCore() {
           value={visibleInput()}
           onChange={(e) => { setInput(e.target.value); interimRef.current = ""; }}
           placeholder="Speak or type…"
-          className="flex-1 h-11 rounded-xl bg-neutral-900 px-3 text-[0.95rem] outline-none ring-1 ring-white/10 focus:ring-violet-400/50"
+          className="flex-1 h-11 rounded-xl bg-neutral-100 px-3 text-[0.95rem] text-neutral-900 placeholder-neutral-500 outline-none ring-1 ring-neutral-200 focus:ring-violet-300"
         />
 
         <button

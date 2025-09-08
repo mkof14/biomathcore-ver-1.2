@@ -17,6 +17,9 @@ export default function AssistantCore() {
   const recogRef = useRef<any>(null);
   const interimRef = useRef<string>("");
 
+  const voicesRef = useRef<SpeechSynthesisVoice[] | null>(null);
+  const chosenVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+
   useEffect(() => {
     const k = "pulse_greeted";
     if (!sessionStorage.getItem(k)) {
@@ -33,6 +36,50 @@ export default function AssistantCore() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Load system voices and choose the best human-like voice
+  useEffect(() => {
+    function pickVoice(all: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+      const lang = (navigator.language || "en-US").toLowerCase();
+      const wantRu = lang.startsWith("ru");
+      const byName = (names: string[]) => {
+        const lower = names.map((n) => n.toLowerCase());
+        return all.find(v => lower.some(n => v.name.toLowerCase().includes(n))) || null;
+      };
+      const byLang = (langs: string[]) =>
+        all.find(v => langs.some(l => (v.lang || "").toLowerCase().startsWith(l))) || null;
+
+      // Preference lists
+      const ruNames = ["Milena", "Tatyana", "Yuri", "Irina", "Microsoft Irina", "Google русский"];
+      const enNames = ["Samantha", "Karen", "Serena", "Daniel", "Moira", "Allison", "Alex", "Microsoft Aria", "Microsoft Guy", "Google US English"];
+
+      // Try explicit names first
+      if (wantRu) {
+        const vn = byName(ruNames); if (vn) return vn;
+        const vl = byLang(["ru"]); if (vl) return vl;
+      } else {
+        const vn = byName(enNames); if (vn) return vn;
+        const vl = byLang(["en-us","en"]); if (vl) return vl;
+      }
+      // Fallback: any non-robotic voice
+      return all[0] || null;
+    }
+
+    function refreshVoices() {
+      const list = window.speechSynthesis.getVoices() || [];
+      if (list.length) {
+        voicesRef.current = list;
+        chosenVoiceRef.current = pickVoice(list);
+      }
+    }
+
+    refreshVoices();
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.onvoiceschanged = () => {
+        refreshVoices();
+      };
+    }
+  }, []);
+
   useEffect(() => {
     const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return;
@@ -40,7 +87,6 @@ export default function AssistantCore() {
     r.lang = navigator.language || "en-US";
     r.interimResults = true;
     r.continuous = true;
-
     r.onresult = (e: any) => {
       let finalText = "";
       let interimText = "";
@@ -52,10 +98,7 @@ export default function AssistantCore() {
       if (finalText) setInput((t) => (t ? t + " " : "") + finalText.trim());
       interimRef.current = interimText;
     };
-    r.onend = () => {
-      setRecActive(false);
-      interimRef.current = "";
-    };
+    r.onend = () => { setRecActive(false); interimRef.current = ""; };
     recogRef.current = r;
   }, []);
 
@@ -103,12 +146,7 @@ export default function AssistantCore() {
 
       const acc = txt || "";
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: acc } : m)));
-      if (acc.trim() && speakOn) {
-        try {
-          const u = new SpeechSynthesisUtterance(acc);
-          (window as any).speechSynthesis.speak(u);
-        } catch {}
-      }
+      if (acc.trim() && speakOn) speak(acc);
     } catch (err: any) {
       const msg = (err?.message || "Error").toString();
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: msg } : m)));
@@ -120,13 +158,8 @@ export default function AssistantCore() {
   function toggleRec() {
     const r = recogRef.current;
     if (!r) return;
-    if (recActive) {
-      try { r.stop(); } catch {}
-      setRecActive(false);
-      interimRef.current = "";
-    } else {
-      try { r.start(); setRecActive(true); } catch {}
-    }
+    if (recActive) { try { r.stop(); } catch {} setRecActive(false); interimRef.current = ""; }
+    else { try { r.start(); setRecActive(true); } catch {} }
   }
 
   function toggleSpeak() {
@@ -134,8 +167,21 @@ export default function AssistantCore() {
     try { (window as any).speechSynthesis.cancel(); } catch {}
   }
 
+  function speak(text: string) {
+    try {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 1.02;
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      const v = chosenVoiceRef.current;
+      if (v) { utter.voice = v; utter.lang = v.lang || utter.lang; }
+      else { utter.lang = (navigator.language || "en-US"); }
+      (window as any).speechSynthesis.speak(utter);
+    } catch {}
+  }
+
   return (
-    <div className="flex h-full flex-col bg-neutral-800 text-neutral-100">
+    <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
         <div className="mx-auto max-w-[520px] space-y-3">
           {messages.map((m) => (
@@ -144,7 +190,7 @@ export default function AssistantCore() {
                 className={
                   m.role === "user"
                     ? "ml-auto max-w-[80%] rounded-2xl bg-violet-600 px-4 py-3 text-white shadow"
-                    : "mr-auto max-w-[80%] rounded-2xl bg-neutral-50 px-4 py-3 text-neutral-900 ring-1 ring-neutral-300"
+                    : "mr-auto max-w-[80%] rounded-2xl bg-white px-4 py-3 text-neutral-900 ring-1 ring-neutral-200"
                 }
               >
                 {m.content}

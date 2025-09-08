@@ -14,7 +14,6 @@ export default function AssistantCore() {
   const [recActive, setRecActive] = useState(false);
 
   const endRef = useRef<HTMLDivElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const recogRef = useRef<any>(null);
   const interimRef = useRef<string>("");
 
@@ -65,24 +64,6 @@ export default function AssistantCore() {
     return s ? `${input} ${s}`.trim() : input;
   }
 
-  async function stopSpeaking() {
-    try { window.speechSynthesis.cancel(); } catch {}
-    try {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-    } catch {}
-  }
-
-  async function speak(text: string) {
-    if (!speakOn) return;
-    try {
-      const utter = new SpeechSynthesisUtterance(text);
-      (window as any).speechSynthesis.speak(utter);
-    } catch {}
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = visibleInput().trim();
@@ -122,7 +103,12 @@ export default function AssistantCore() {
 
       const acc = txt || "";
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: acc } : m)));
-      if (acc.trim()) speak(acc);
+      if (acc.trim() && speakOn) {
+        try {
+          const u = new SpeechSynthesisUtterance(acc);
+          (window as any).speechSynthesis.speak(u);
+        } catch {}
+      }
     } catch (err: any) {
       const msg = (err?.message || "Error").toString();
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: msg } : m)));
@@ -144,15 +130,14 @@ export default function AssistantCore() {
   }
 
   function toggleSpeak() {
-    const next = !speakOn;
-    setSpeakOn(next);
-    if (!next) stopSpeaking();
+    setSpeakOn((v) => !v);
+    try { (window as any).speechSynthesis.cancel(); } catch {}
   }
 
   return (
-    <div className="flex h-full flex-col bg-white text-neutral-900">
+    <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
-        <div className="mx-auto w-[min(760px,95vw)] max-w-none space-y-3">
+        <div className="mx-auto max-w-[520px] space-y-3">
           {messages.map((m) => (
             <div key={m.id} className="flex">
               <div
@@ -170,13 +155,13 @@ export default function AssistantCore() {
         </div>
       </div>
 
-      <div className="h-px w-full bg-neutral-200" />
+      <div className="h-px w-full bg-white/10" />
 
-      <form onSubmit={onSubmit} className="mx-auto flex w-[min(780px,96vw)] items-center gap-2 p-2.5">
+      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[600px] items-center gap-2 p-2.5">
         <button
           type="button"
           onClick={toggleRec}
-          className={`h-11 w-11 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-800 hover:bg-neutral-700"} flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-800 hover:bg-neutral-700"} text-white ring-1 ring-white/10 flex items-center justify-center`}
           aria-label="Mic"
           title="Mic"
         >
@@ -189,13 +174,13 @@ export default function AssistantCore() {
           value={visibleInput()}
           onChange={(e) => { setInput(e.target.value); interimRef.current = ""; }}
           placeholder="Speak or type…"
-          className="flex-1 h-11 rounded-xl bg-neutral-100 px-3 text-[0.95rem] text-neutral-900 placeholder-neutral-500 outline-none ring-1 ring-neutral-300 focus:ring-violet-300"
+          className="flex-1 h-11 rounded-xl bg-neutral-100 px-3 text-[0.95rem] text-neutral-900 placeholder-neutral-500 outline-none ring-1 ring-neutral-200 focus:ring-violet-300"
         />
 
         <button
           type="button"
           onClick={toggleSpeak}
-          className={`h-11 w-11 shrink-0 rounded-xl ${speakOn ? "bg-neutral-800 hover:bg-neutral-700" : "bg-neutral-700/60"} flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${speakOn ? "bg-neutral-800 hover:bg-neutral-700" : "bg-neutral-700/60"} text-white ring-1 ring-white/10 flex items-center justify-center`}
           aria-label="Speaker"
           title="Speaker"
         >

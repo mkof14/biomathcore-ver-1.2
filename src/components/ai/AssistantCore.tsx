@@ -135,7 +135,7 @@ export default function AssistantCore() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
+    <div className="flex h-full flex-col bg-neutral-900 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
         <div className="mx-auto max-w-[520px] space-y-3">
           {messages.map((m) => (

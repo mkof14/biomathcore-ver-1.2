@@ -35,20 +35,7 @@ export default function AssistantCore() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function speak(text: string) {
-    try {
-      const r = await fetch("/api/assistant/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (!r.ok) return;
-      const blob = await r.blob();
-      const url = URL.createObjectURL(blob);
-      const a = new Audio(url);
-      a.play().catch(() => {});
-    } catch {}
-  }
+  async function speak(text: string){try{const r=await fetch("/api/assistant/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);await a.play();return;}}catch{}try{const u=new SpeechSynthesisUtterance(text);window.speechSynthesis.speak(u);}catch{}}
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

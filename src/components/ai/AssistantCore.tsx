@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 
 type Role = "user" | "assistant";
@@ -13,6 +12,7 @@ export default function AssistantCore() {
   const [busy, setBusy] = useState(false);
   const [speakOn, setSpeakOn] = useState(true);
   const [recActive, setRecActive] = useState(false);
+
   const endRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recogRef = useRef<any>(null);
@@ -66,9 +66,7 @@ export default function AssistantCore() {
   }
 
   async function stopSpeaking() {
-    try {
-      window.speechSynthesis.cancel();
-    } catch {}
+    try { window.speechSynthesis.cancel(); } catch {}
     try {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -77,7 +75,38 @@ export default function AssistantCore() {
     } catch {}
   }
 
-  async function speak(text: string){try{const r=await fetch("/api/assistant/tts11",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);await a.play().catch(()=>{});return;}}catch{}try{const r=await fetch("/api/assistant/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);await a.play().catch(()=>{});return;}}catch{}try{const u=new SpeechSynthesisUtterance(text);window.speechSynthesis.speak(u);}catch{}} catch {}
+  async function speak(text: string) {
+    if (!speakOn) return;
+    try {
+      const r = await fetch("/api/assistant/tts11", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (r.ok) {
+        const b = await r.blob();
+        const u = URL.createObjectURL(b);
+        const a = new Audio(u);
+        audioRef.current = a;
+        await a.play().catch(() => {});
+        return;
+      }
+    } catch {}
+    try {
+      const r = await fetch("/api/assistant/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (r.ok) {
+        const b = await r.blob();
+        const u = URL.createObjectURL(b);
+        const a = new Audio(u);
+        audioRef.current = a;
+        await a.play().catch(() => {});
+        return;
+      }
+    } catch {}
     try {
       const u = new SpeechSynthesisUtterance(text);
       (window as any).speechSynthesis.speak(u);
@@ -90,9 +119,7 @@ export default function AssistantCore() {
     if (!q || busy) return;
 
     if (recActive && recogRef.current) {
-      try {
-        recogRef.current.stop();
-      } catch {}
+      try { recogRef.current.stop(); } catch {}
       setRecActive(false);
       interimRef.current = "";
     }
@@ -155,7 +182,7 @@ export default function AssistantCore() {
   return (
     <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
-        <div className="mx-auto max-w-[520px] space-y-3">
+        <div className="mx-auto max-w-[560px] space-y-3">
           {messages.map((m) => (
             <div key={m.id} className="flex">
               <div
@@ -179,7 +206,7 @@ export default function AssistantCore() {
         <button
           type="button"
           onClick={toggleRec}
-          className={`h-10 w-10 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-800 hover:bg-neutral-700"} flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-800 hover:bg-neutral-700"} flex items-center justify-center`}
           aria-label="Mic"
           title="Mic"
         >
@@ -198,7 +225,7 @@ export default function AssistantCore() {
         <button
           type="button"
           onClick={toggleSpeak}
-          className={`h-10 w-10 shrink-0 rounded-xl ${speakOn ? "bg-neutral-800 hover:bg-neutral-700" : "bg-neutral-700/60"} flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${speakOn ? "bg-neutral-800 hover:bg-neutral-700" : "bg-neutral-700/60"} flex items-center justify-center`}
           aria-label="Speaker"
           title="Speaker"
         >

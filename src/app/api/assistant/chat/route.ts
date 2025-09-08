@@ -1,64 +1,25 @@
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-
-function key() { return process.env.OPENROUTER_API_KEY || ""; }
-function model() { return process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini"; }
-function site() { return process.env.OPENROUTER_SITE || "http://localhost:3000"; }
-function title() { return process.env.OPENROUTER_TITLE || "BioMath Core Dev"; }
-
-type Msg = { role: "system"|"user"|"assistant"; content: any };
-
-function sanitizeMessages(ms: any[]): Msg[] {
-  if (!Array.isArray(ms)) return [{ role:"user", content:"Hello" }];
-  const out: Msg[] = [];
-  for (const m of ms) {
-    const role = (m?.role === "system" || m?.role === "user" || m?.role === "assistant") ? m.role : "user";
-    let content = m?.content;
-    if (Array.isArray(content)) content = content.map((c:any)=> typeof c?.text==="string" ? c.text : (typeof c==="string"? c : JSON.stringify(c))).join("\n");
-    if (typeof content !== "string") content = JSON.stringify(content ?? "");
-    content = content.trim();
-    if (content) out.push({ role, content });
-  }
-  if (!out.length) out.push({ role:"user", content:"Hello" });
-  return out.slice(-40);
-}
-
-export async function POST(req: Request) {
-  try {
-    const k = key();
-    if (!k) return new NextResponse("Missing OPENROUTER_API_KEY", { status: 401 });
-
-    const body = await req.json().catch(()=> ({}));
-    const messages = sanitizeMessages(body?.messages);
-
-    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${k}`,
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "HTTP-Referer": site(),
-        "X-Title": title(),
+function key(){return process.env.OPENROUTER_API_KEY||""}
+function model(){return process.env.OPENROUTER_MODEL||"openai/gpt-4o-mini"}
+function site(){return process.env.OPENROUTER_SITE||"http://localhost:3000"}
+function title(){return process.env.OPENROUTER_TITLE||"BioMath Core Dev"}
+export async function POST(req:Request){
+  try{
+    const k=key(); if(!k) return new NextResponse("Missing OPENROUTER_API_KEY",{status:401});
+    const {messages}=await req.json();
+    const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+      method:"POST",
+      headers:{
+        "Authorization":`Bearer ${k}`,
+        "Content-Type":"application/json",
+        "HTTP-Referer":site(),
+        "X-Title":title()
       },
-      body: JSON.stringify({
-        model: model(),
-        messages,
-        temperature: 0.3,
-        stream: false,
-      }),
+      body:JSON.stringify({model:model(),messages,temperature:0.3,stream:false})
     });
-
-    const text = await resp.text().catch(()=>"");
-    if (!resp.ok) return new NextResponse(text || `Upstream error (${resp.status})`, { status: resp.status });
-
-    try {
-      const j = JSON.parse(text);
-      const out = j?.choices?.[0]?.message?.content ?? "";
-      return new Response(out, { headers: { "Content-Type":"text/plain; charset=utf-8" } });
-    } catch {
-      return new Response(text, { headers: { "Content-Type":"text/plain; charset=utf-8" } });
-    }
-  } catch (e:any) {
-    return new NextResponse(`Server error: ${e?.message||"unknown"}`, { status: 500 });
-  }
+    const t=await r.text().catch(()=> ""); if(!r.ok) return new NextResponse(t||`Upstream error (${r.status})`,{status:r.status});
+    try{const j=JSON.parse(t); const out=j?.choices?.[0]?.message?.content??""; return new Response(out,{headers:{"Content-Type":"text/plain; charset=utf-8"}})}
+    catch{return new Response(t,{headers:{"Content-Type":"text/plain; charset=utf-8"}})}
+  }catch(e:any){return new NextResponse(`Server error: ${e?.message||"unknown"}`,{status:500})}
 }

@@ -78,38 +78,8 @@ export default function AssistantCore() {
   async function speak(text: string) {
     if (!speakOn) return;
     try {
-      const r = await fetch("/api/assistant/tts11", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (r.ok) {
-        const b = await r.blob();
-        const u = URL.createObjectURL(b);
-        const a = new Audio(u);
-        audioRef.current = a;
-        await a.play().catch(() => {});
-        return;
-      }
-    } catch {}
-    try {
-      const r = await fetch("/api/assistant/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (r.ok) {
-        const b = await r.blob();
-        const u = URL.createObjectURL(b);
-        const a = new Audio(u);
-        audioRef.current = a;
-        await a.play().catch(() => {});
-        return;
-      }
-    } catch {}
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      (window as any).speechSynthesis.speak(u);
+      const utter = new SpeechSynthesisUtterance(text);
+      (window as any).speechSynthesis.speak(utter);
     } catch {}
   }
 
@@ -182,14 +152,14 @@ export default function AssistantCore() {
   return (
     <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
-        <div className="mx-auto max-w-[700px] space-y-3">
+        <div className="mx-auto w-[min(700px,92vw)] max-w-none space-y-3">
           {messages.map((m) => (
             <div key={m.id} className="flex">
               <div
                 className={
                   m.role === "user"
                     ? "ml-auto max-w-[80%] rounded-2xl bg-violet-600 px-4 py-3 text-white shadow"
-                    : "mr-auto max-w-[80%] rounded-2xl bg-neutral-850 px-4 py-3 text-neutral-100 ring-1 ring-white/10"
+                    : "mr-auto max-w-[80%] rounded-2xl bg-white px-4 py-3 text-neutral-900 ring-1 ring-neutral-200"
                 }
               >
                 {m.content}
@@ -202,7 +172,7 @@ export default function AssistantCore() {
 
       <div className="h-px w-full bg-white/10" />
 
-      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[720px] items-center gap-2 p-2.5">
+      <form onSubmit={onSubmit} className="mx-auto flex w-[min(720px,95vw)] items-center gap-2 p-2.5">
         <button
           type="button"
           onClick={toggleRec}
@@ -243,7 +213,7 @@ export default function AssistantCore() {
         <button
           type="submit"
           disabled={busy}
-          className="h-11 shrink-0 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 text-white font-semibold hover:brightness-110 active:scale-95 disabled:opacity-60"
+          className="h-11 min-w-[96px] shrink-0 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 px-5 text-white font-semibold hover:brightness-110 active:scale-95 disabled:opacity-60"
         >
           {busy ? "Thinking…" : "Send"}
         </button>

@@ -77,23 +77,7 @@ export default function AssistantCore() {
     } catch {}
   }
 
-  async function speak(text: string) {
-    if (!speakOn) return;
-    try {
-      const r = await fetch("/api/assistant/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (r.ok) {
-        const blob = await r.blob();
-        const url = URL.createObjectURL(blob);
-        const a = new Audio(url);
-        audioRef.current = a;
-        await a.play().catch(() => {});
-        return;
-      }
-    } catch {}
+  async function speak(text: string){try{const r=await fetch("/api/assistant/tts11",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);await a.play().catch(()=>{});return;}}catch{}try{const r=await fetch("/api/assistant/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);await a.play().catch(()=>{});return;}}catch{}try{const u=new SpeechSynthesisUtterance(text);window.speechSynthesis.speak(u);}catch{}} catch {}
     try {
       const u = new SpeechSynthesisUtterance(text);
       (window as any).speechSynthesis.speak(u);
@@ -191,7 +175,7 @@ export default function AssistantCore() {
 
       <div className="h-px w-full bg-white/10" />
 
-      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[520px] items-center gap-2 p-2.5">
+      <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-[600px] items-center gap-2 p-2.5">
         <button
           type="button"
           onClick={toggleRec}
@@ -208,7 +192,7 @@ export default function AssistantCore() {
           value={visibleInput()}
           onChange={(e) => { setInput(e.target.value); interimRef.current = ""; }}
           placeholder="Speak or type…"
-          className="flex-1 h-10 rounded-xl bg-neutral-900 px-3 text-[0.95rem] outline-none ring-1 ring-white/10 focus:ring-violet-400/50"
+          className="flex-1 h-11 rounded-xl bg-neutral-900 px-3 text-[0.95rem] outline-none ring-1 ring-white/10 focus:ring-violet-400/50"
         />
 
         <button
@@ -232,7 +216,7 @@ export default function AssistantCore() {
         <button
           type="submit"
           disabled={busy}
-          className="h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 text-white font-semibold hover:brightness-110 active:scale-95 disabled:opacity-60"
+          className="h-11 shrink-0 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 text-white font-semibold hover:brightness-110 active:scale-95 disabled:opacity-60"
         >
           {busy ? "Thinking…" : "Send"}
         </button>

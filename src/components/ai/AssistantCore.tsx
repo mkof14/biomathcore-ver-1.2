@@ -135,7 +135,7 @@ export default function AssistantCore() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-neutral-900 text-neutral-100">
+    <div className="flex h-full flex-col bg-neutral-100 text-neutral-900">
       <div className="flex-1 overflow-y-auto p-3">
         <div className="mx-auto max-w-[520px] space-y-3">
           {messages.map((m) => (
@@ -144,7 +144,7 @@ export default function AssistantCore() {
                 className={
                   m.role === "user"
                     ? "ml-auto max-w-[80%] rounded-2xl bg-violet-600 px-4 py-3 text-white shadow"
-                    : "mr-auto max-w-[80%] rounded-2xl bg-white px-4 py-3 text-neutral-900 ring-1 ring-neutral-200"
+                    : "mr-auto max-w-[80%] rounded-2xl bg-neutral-50 px-4 py-3 text-neutral-900 ring-1 ring-neutral-300"
                 }
               >
                 {m.content}

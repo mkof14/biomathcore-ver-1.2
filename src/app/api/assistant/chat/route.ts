@@ -1,54 +1,47 @@
 import { NextResponse } from "next/server";
-
 export const runtime = "nodejs";
 
-async function callModel(model: string, messages: any[]) {
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: false,
-      temperature: 0.3,
-    }),
-  });
-  return r;
+function modelId() {
+  return process.env.OPENAI_MODEL || "gpt-4o-mini";
+}
+
+function flattenMessages(messages: any[]): string {
+  if (!Array.isArray(messages)) return "User: Hello\nAssistant:";
+  const sys = messages.filter((m:any)=>m.role==="system").map((m:any)=>m.content).join("\n\n");
+  const rest = messages.filter((m:any)=>m.role!=="system").map((m:any)=>{
+    const r = m.role==="user" ? "User" : "Assistant";
+    return `${r}: ${typeof m.content==="string"?m.content:JSON.stringify(m.content)}`;
+  }).join("\n");
+  const head = sys ? sys + "\n\n" : "";
+  return `${head}${rest}\nAssistant:`;
 }
 
 export async function POST(req: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      return new NextResponse("Missing OPENAI_API_KEY", { status: 401 });
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) return new NextResponse("Missing OPENAI_API_KEY", { status: 401 });
+
+    const body = await req.json().catch(()=>({}));
+    const messages = Array.isArray(body?.messages) ? body.messages : [{ role:"user", content:"Hello" }];
+    const input = flattenMessages(messages);
+
+    const resp = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: modelId(), input, temperature: 0.3 }),
+    });
+
+    const text = await resp.text().catch(()=> "");
+    if (!resp.ok) return new NextResponse(text || `OpenAI error (${resp.status})`, { status: resp.status });
+
+    try {
+      const json = JSON.parse(text);
+      const out = json.output_text || json?.choices?.[0]?.message?.content || "";
+      return new Response(out, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    } catch {
+      return new Response(text, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
     }
-
-    const { messages } = await req.json();
-    const candidates = ["gpt-4o-mini", "gpt-4o", "gpt-4o-mini-2024-07-18", "gpt-4o-2024-08-06"];
-
-    const errors: string[] = [];
-    for (const model of candidates) {
-      const resp = await callModel(model, messages);
-      if (resp.ok) {
-        const json = await resp.json();
-        const text = json?.choices?.[0]?.message?.content ?? "";
-        return new Response(text, {
-          headers: { "Content-Type": "text/plain; charset=utf-8" },
-        });
-      } else {
-        const t = await resp.text().catch(() => "");
-        errors.push(`${model}: ${resp.status} ${resp.statusText} ${t}`);
-        if (resp.status === 401) break;
-      }
-    }
-
-    return new NextResponse(
-      `Upstream error.\n${errors.join("\n---\n") || "No details"}`,
-      { status: 500 }
-    );
-  } catch (e: any) {
-    return new NextResponse(`Server error: ${e?.message || "unknown"}`, { status: 500 });
+  } catch (e:any) {
+    return new NextResponse(`Server error: ${e?.message||"unknown"}`, { status: 500 });
   }
 }

@@ -6,6 +6,39 @@ type Msg = { id: string; role: Role; content: string };
 
 const ASSISTANT_NAME = "Pulse";
 
+function pickBestVoice(list: SpeechSynthesisVoice[], locale: string): SpeechSynthesisVoice | null {
+  const lang = (locale || "en-US").toLowerCase();
+  const wantRu = lang.startsWith("ru");
+
+  const score = (v: SpeechSynthesisVoice) => {
+    let s = 0;
+    const n = (v.name || "").toLowerCase();
+    const l = (v.lang || "").toLowerCase();
+
+    const has = (q: string) => n.includes(q.toLowerCase());
+
+    if (wantRu) {
+      if (l.startsWith("ru")) s += 40;
+      if (has("milena") || has("tatyana") || has("yuri") || has("irina") || has("google русский") || has("microsoft")) s += 30;
+      if (has("natural") || has("enhanced")) s += 12;
+    } else {
+      if (l.startsWith("en-us") || l.startsWith("en")) s += 30;
+      if (has("samantha") || has("aria") || has("allison") || has("serena") || has("karen") || has("daniel") || has("alex") || has("guy") || has("natural") || has("enhanced")) s += 25;
+    }
+    if (!v.default) s += 0; else s += 5;
+    if (!v.localService) s += 0; else s += 3;
+    return s;
+  };
+
+  let best: SpeechSynthesisVoice | null = null;
+  let bestScore = -1;
+  for (const v of list) {
+    const s = score(v);
+    if (s > bestScore) { bestScore = s; best = v; }
+  }
+  return best || list[0] || null;
+}
+
 export default function AssistantCore() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -36,47 +69,18 @@ export default function AssistantCore() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load system voices and choose the best human-like voice
   useEffect(() => {
-    function pickVoice(all: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-      const lang = (navigator.language || "en-US").toLowerCase();
-      const wantRu = lang.startsWith("ru");
-      const byName = (names: string[]) => {
-        const lower = names.map((n) => n.toLowerCase());
-        return all.find(v => lower.some(n => v.name.toLowerCase().includes(n))) || null;
-      };
-      const byLang = (langs: string[]) =>
-        all.find(v => langs.some(l => (v.lang || "").toLowerCase().startsWith(l))) || null;
-
-      // Preference lists
-      const ruNames = ["Milena", "Tatyana", "Yuri", "Irina", "Microsoft Irina", "Google русский"];
-      const enNames = ["Samantha", "Karen", "Serena", "Daniel", "Moira", "Allison", "Alex", "Microsoft Aria", "Microsoft Guy", "Google US English"];
-
-      // Try explicit names first
-      if (wantRu) {
-        const vn = byName(ruNames); if (vn) return vn;
-        const vl = byLang(["ru"]); if (vl) return vl;
-      } else {
-        const vn = byName(enNames); if (vn) return vn;
-        const vl = byLang(["en-us","en"]); if (vl) return vl;
-      }
-      // Fallback: any non-robotic voice
-      return all[0] || null;
-    }
-
-    function refreshVoices() {
+    function loadVoices() {
       const list = window.speechSynthesis.getVoices() || [];
       if (list.length) {
         voicesRef.current = list;
-        chosenVoiceRef.current = pickVoice(list);
+        const best = pickBestVoice(list, navigator.language || "en-US");
+        chosenVoiceRef.current = best;
       }
     }
-
-    refreshVoices();
+    loadVoices();
     if (typeof window !== "undefined") {
-      window.speechSynthesis.onvoiceschanged = () => {
-        refreshVoices();
-      };
+      window.speechSynthesis.onvoiceschanged = () => loadVoices();
     }
   }, []);
 
@@ -87,6 +91,7 @@ export default function AssistantCore() {
     r.lang = navigator.language || "en-US";
     r.interimResults = true;
     r.continuous = true;
+
     r.onresult = (e: any) => {
       let finalText = "";
       let interimText = "";
@@ -98,13 +103,32 @@ export default function AssistantCore() {
       if (finalText) setInput((t) => (t ? t + " " : "") + finalText.trim());
       interimRef.current = interimText;
     };
-    r.onend = () => { setRecActive(false); interimRef.current = ""; };
+    r.onend = () => {
+      setRecActive(false);
+      interimRef.current = "";
+    };
     recogRef.current = r;
   }, []);
 
   function visibleInput(): string {
     const s = interimRef.current;
     return s ? `${input} ${s}`.trim() : input;
+  }
+
+  function speak(text: string) {
+    if (!speakOn) return;
+    try {
+      const utter = new SpeechSynthesisUtterance(text);
+      // естественные параметры
+      utter.rate = 0.97;
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      const v = chosenVoiceRef.current;
+      if (v) { utter.voice = v; utter.lang = v.lang || utter.lang; }
+      else { utter.lang = (navigator.language || "en-US"); }
+      (window as any).speechSynthesis.cancel();
+      (window as any).speechSynthesis.speak(utter);
+    } catch {}
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -146,7 +170,7 @@ export default function AssistantCore() {
 
       const acc = txt || "";
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: acc } : m)));
-      if (acc.trim() && speakOn) speak(acc);
+      if (acc.trim()) speak(acc);
     } catch (err: any) {
       const msg = (err?.message || "Error").toString();
       setMessages((prev) => prev.map((m) => (m.id === a.id ? { ...m, content: msg } : m)));
@@ -158,8 +182,13 @@ export default function AssistantCore() {
   function toggleRec() {
     const r = recogRef.current;
     if (!r) return;
-    if (recActive) { try { r.stop(); } catch {} setRecActive(false); interimRef.current = ""; }
-    else { try { r.start(); setRecActive(true); } catch {} }
+    if (recActive) {
+      try { r.stop(); } catch {}
+      setRecActive(false);
+      interimRef.current = "";
+    } else {
+      try { r.start(); setRecActive(true); } catch {}
+    }
   }
 
   function toggleSpeak() {
@@ -167,21 +196,8 @@ export default function AssistantCore() {
     try { (window as any).speechSynthesis.cancel(); } catch {}
   }
 
-  function speak(text: string) {
-    try {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 1.02;
-      utter.pitch = 1.0;
-      utter.volume = 1.0;
-      const v = chosenVoiceRef.current;
-      if (v) { utter.voice = v; utter.lang = v.lang || utter.lang; }
-      else { utter.lang = (navigator.language || "en-US"); }
-      (window as any).speechSynthesis.speak(utter);
-    } catch {}
-  }
-
   return (
-    <div className="flex h-full flex-col bg-neutral-950 text-neutral-100">
+    <div className="flex h-full flex-col bg-neutral-800 text-neutral-100">
       <div className="flex-1 overflow-y-auto p-3">
         <div className="mx-auto max-w-[520px] space-y-3">
           {messages.map((m) => (
@@ -190,7 +206,7 @@ export default function AssistantCore() {
                 className={
                   m.role === "user"
                     ? "ml-auto max-w-[80%] rounded-2xl bg-violet-600 px-4 py-3 text-white shadow"
-                    : "mr-auto max-w-[80%] rounded-2xl bg-white px-4 py-3 text-neutral-900 ring-1 ring-neutral-200"
+                    : "mr-auto max-w-[80%] rounded-2xl bg-neutral-200 px-4 py-3 text-neutral-900 ring-1 ring-neutral-300"
                 }
               >
                 {m.content}
@@ -207,7 +223,7 @@ export default function AssistantCore() {
         <button
           type="button"
           onClick={toggleRec}
-          className={`h-11 w-11 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-800 hover:bg-neutral-700"} text-white ring-1 ring-white/10 flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${recActive ? "bg-red-600" : "bg-neutral-700 hover:bg-neutral-600"} text-white ring-1 ring-white/10 flex items-center justify-center`}
           aria-label="Mic"
           title="Mic"
         >
@@ -220,13 +236,13 @@ export default function AssistantCore() {
           value={visibleInput()}
           onChange={(e) => { setInput(e.target.value); interimRef.current = ""; }}
           placeholder="Speak or type…"
-          className="flex-1 h-11 rounded-xl bg-neutral-100 px-3 text-[0.95rem] text-neutral-900 placeholder-neutral-500 outline-none ring-1 ring-neutral-200 focus:ring-violet-300"
+          className="flex-1 h-11 rounded-xl bg-neutral-100 px-3 text-[0.95rem] text-neutral-900 placeholder-neutral-500 outline-none ring-1 ring-neutral-300 focus:ring-violet-300"
         />
 
         <button
           type="button"
           onClick={toggleSpeak}
-          className={`h-11 w-11 shrink-0 rounded-xl ${speakOn ? "bg-neutral-800 hover:bg-neutral-700" : "bg-neutral-700/60"} text-white ring-1 ring-white/10 flex items-center justify-center`}
+          className={`h-11 w-11 shrink-0 rounded-xl ${speakOn ? "bg-neutral-700 hover:bg-neutral-600" : "bg-neutral-600/70"} text-white ring-1 ring-white/10 flex items-center justify-center`}
           aria-label="Speaker"
           title="Speaker"
         >

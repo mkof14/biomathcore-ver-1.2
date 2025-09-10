@@ -1,0 +1,55 @@
+import Link from "next/link";
+import { headers, cookies } from "next/headers";
+
+async function load() {
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host  = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const base  = `${proto}://${host}`;
+  const ck = await cookies();
+  const res = await fetch(`${base}/api/reports/list`, {
+    cache: "no-store",
+    headers: { cookie: ck.toString() },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export default async function ReportsPage() {
+  const items = await load();
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Reports</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Generate and review your AI-powered reports.</p>
+        </div>
+        <form action="/api/reports/generate" method="post" className="flex gap-2">
+          <input type="hidden" name="type" value="core" />
+          <button className="px-4 py-2 rounded-2xl border bg-white/70 dark:bg-white/5 hover:bg-white/90">Generate Core</button>
+        </form>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        {items.map((x:any)=>(
+          <Link key={x.id} href={`/member-zone/reports/${x.id}`} className="rounded-2xl border bg-white/70 dark:bg-white/5 hover:bg-white shadow-sm transition p-4 block">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">{x.title}</h3>
+              <div className="text-xs opacity-70">{x.type}</div>
+            </div>
+            <div className="text-xs opacity-70 mt-2">{new Date(x.createdAt).toLocaleString()}</div>
+          </Link>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <form action="/api/reports/generate" method="post">
+          <input type="hidden" name="type" value="sexual_health" />
+          <button className="px-4 py-2 rounded-2xl border bg-white/70 dark:bg-white/5 hover:bg-white/90">Generate Sexual Health</button>
+        </form>
+        <form action="/api/reports/generate" method="post">
+          <input type="hidden" name="type" value="longevity" />
+          <button className="px-4 py-2 rounded-2xl border bg-white/70 dark:bg-white/5 hover:bg-white/90">Generate Longevity</button>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,182 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type Category = { id: string; title: string };
+
+const CORE_PRICE = 19;
+const PER_CATEGORY_DEFAULT = 3;
+
+// Keep in sync with API
+const BASE_CORE_TITLES = new Set<string>([
+  "Core Health",
+]);
+
+export default function CatalogCategoriesClient() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [catsRes, selRes] = await Promise.all([
+          fetch("/api/catalog/categories", { cache: "no-store" }),
+          fetch("/api/user/category-selections", { cache: "no-store" }),
+        ]);
+        if (!catsRes.ok) throw new Error("categories load failed");
+        if (!selRes.ok) throw new Error("selections load failed");
+        const cats: Category[] = await catsRes.json();
+        const sel: string[] = await selRes.json();
+        if (cancelled) return;
+        setCategories(cats);
+        setSelected(new Set(sel));
+      } catch {
+        setToast({ kind: "err", msg: "Failed to load" });
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const idsOfBase = useMemo(() => {
+    const m = new Set<string>();
+    for (const c of categories) if (BASE_CORE_TITLES.has(c.title)) m.add(c.id);
+    return m;
+  }, [categories]);
+
+  const counts = useMemo(() => {
+    const chosenPaid = Array.from(selected).filter(id => !idsOfBase.has(id)).length;
+    const perCategoryPrice = PER_CATEGORY_DEFAULT;
+    const monthly = CORE_PRICE + chosenPaid * perCategoryPrice;
+    const yearly = Math.round(monthly * 10);
+    return { chosenPaid, monthly, yearly, perCategoryPrice };
+  }, [selected, idsOfBase]);
+
+  async function toggle(catId: string, willSelect: boolean) {
+    if (busy) return;
+    if (idsOfBase.has(catId)) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/user/category-selections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryId: catId, selected: willSelect }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as any));
+        throw new Error(err?.error || "save failed");
+      }
+      setSelected(prev => {
+        const nx = new Set(prev);
+        if (willSelect) nx.add(catId);
+        else nx.delete(catId);
+        return nx;
+      });
+      setToast({ kind: "ok", msg: willSelect ? "Added" : "Removed" });
+      setTimeout(() => setToast(null), 1200);
+    } catch (e: any) {
+      setToast({ kind: "err", msg: e?.message || "Error" });
+      setTimeout(() => setToast(null), 1500);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function clearAll() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/user/category-selections", { method: "DELETE" });
+      if (!res.ok) throw new Error("clear failed");
+      const data = await res.json().catch(() => ({} as any));
+      setSelected(new Set());
+      setToast({ kind: "ok", msg: `Cleared ${data?.cleared ?? 0}` });
+      setTimeout(() => setToast(null), 1500);
+    } catch {
+      setToast({ kind: "err", msg: "Error" });
+      setTimeout(() => setToast(null), 1500);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <div className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-black/40 border rounded-2xl p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Catalog</h1>
+          <button
+            onClick={clearAll}
+            disabled={busy || selected.size === 0}
+            className="px-4 py-2 rounded-2xl border bg-gray-50 hover:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 disabled:opacity-50"
+          >
+            {busy ? "Clearing..." : "Clear selections"}
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className="px-3 py-1 rounded-full border bg-gray-50 dark:bg-neutral-900">
+            Core: ${CORE_PRICE}/mo
+          </span>
+          <span className="px-3 py-1 rounded-full border bg-gray-50 dark:bg-neutral-900">
+            Selected: {counts.chosenPaid}
+          </span>
+          <span className="px-3 py-1 rounded-full border bg-gray-50 dark:bg-neutral-900">
+            +${counts.perCategoryPrice}/cat
+          </span>
+          <span className="px-3 py-1 rounded-full border bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+            Total: ${counts.monthly}/mo • ${counts.yearly}/yr
+          </span>
+        </div>
+
+        {toast && (
+          <div
+            className={[
+              "text-sm px-3 py-2 rounded-xl border inline-block",
+              toast.kind === "ok"
+                ? "bg-green-50 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-200 dark:border-green-800"
+                : "bg-red-50 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-200 dark:border-red-800",
+            ].join(" ")}
+          >
+            {toast.msg}
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {categories.map((c) => {
+          const isBase = BASE_CORE_TITLES.has(c.title);
+          const isSelected = isBase || selected.has(c.id);
+          return (
+            <div key={c.id} className="rounded-2xl border p-4 bg-white/70 dark:bg-neutral-900">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">{c.title}</h3>
+                <div className="flex items-center gap-2">
+                  {isBase && (
+                    <span className="text-xs px-2 py-1 rounded-full border bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border-amber-300 dark:border-amber-700">
+                      Included in Core
+                    </span>
+                  )}
+                  <button
+                    onClick={() => toggle(c.id, !isSelected)}
+                    disabled={busy || isBase}
+                    className={`text-xs rounded-full px-3 py-1 border transition ${
+                      isSelected
+                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700"
+                        : "bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-neutral-700"
+                    } ${isBase ? "opacity-60 cursor-not-allowed" : ""}`}
+                  >
+                    {isSelected ? "Selected" : "Select"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

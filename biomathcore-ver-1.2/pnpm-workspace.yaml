@@ -1,0 +1,10 @@
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bcrypt
+  - core-js
+  - esbuild
+  - prisma
+  - protobufjs
+  - sharp

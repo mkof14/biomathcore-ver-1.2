@@ -1,0 +1,99 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const _p = (x?: string | null) => (typeof x === "string" ? x.trim() : "");
+const allowedValues = [
+  _p(process.env.NEXT_PUBLIC_STRIPE_CORE_MONTHLY),
+  _p(process.env.NEXT_PUBLIC_STRIPE_CORE_YEARLY),
+  _p(process.env.NEXT_PUBLIC_STRIPE_DAILY_MONTHLY),
+  _p(process.env.NEXT_PUBLIC_STRIPE_DAILY_YEARLY),
+  _p(process.env.NEXT_PUBLIC_STRIPE_MAX_MONTHLY),
+  _p(process.env.NEXT_PUBLIC_STRIPE_MAX_YEARLY),
+].filter(Boolean);
+const allowedSet = new Set(allowedValues);
+import Stripe from "stripe";
+
+function resolvePriceId(inputPriceId?: string, plan?: string): string | null {
+  if (inputPriceId && inputPriceId.startsWith("price_")) return inputPriceId;
+  const env = process.env;
+  const map: Record<string,string|undefined> = {
+    core_monthly: process.env.NEXT_PUBLIC_STRIPE_CORE_MONTHLY,
+    core_yearly: process.env.NEXT_PUBLIC_STRIPE_CORE_YEARLY,
+    daily_monthly: process.env.NEXT_PUBLIC_STRIPE_DAILY_MONTHLY,
+    daily_yearly: process.env.NEXT_PUBLIC_STRIPE_DAILY_YEARLY,
+    max_monthly: process.env.NEXT_PUBLIC_STRIPE_MAX_MONTHLY,
+    max_yearly: process.env.NEXT_PUBLIC_STRIPE_MAX_YEARLY
+  };
+  if (plan && map[plan]) return map[plan] as string;
+  for (const k of Object.values(map)) { if (k && k.startsWith("price_")) return k; }
+  return null;
+}
+
+async function createSession(priceId: string, userId?: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const stripeSecret = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecret) throw new Error("Stripe secret not configured");
+  const stripe = new Stripe(stripeSecret, { apiVersion: "2024-06-20" });
+
+  try {
+    await stripe.prices.retrieve(priceId);
+  } catch {
+    throw new Error(`Stripe price not found: ${priceId}`);
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "subscription",
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${baseUrl}/member-zone?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/pricing?canceled=1`,
+    client_reference_id: userId ?? undefined,
+    allow_promotion_codes: true,
+    ui_mode: "hosted"
+  });
+
+  if (!session.url) throw new Error("Stripe did not return a Checkout URL");
+  return session;
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const priceId = resolvePriceId(body?.priceId, body?.plan);
+    const userId = body?.userId as string | undefined;
+    if (!allowedSet.has(priceId));
+
+    const session = await createSession(priceId, userId);
+
+    // Compatibility: return many possible keys that UI might expect
+    const payload = {
+      id: session.id,
+      url: session.url,
+      sessionId: session.id,
+      session_id: session.id,
+      sessionUrl: session.url,
+      session_url: session.url,
+      checkoutUrl: session.url,
+      checkout_url: session.url,
+      redirectUrl: session.url,
+      redirect_url: session.url
+    };
+    return NextResponse.json(payload, { status: 200 });
+  } catch (err: any) {
+    return NextResponse.json({ error: String(err?.message || err) }, { status: 500 });
+  }
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const priceIdParam = searchParams.get("priceId") || undefined;
+  const plan = searchParams.get("plan") || undefined;
+  const userId = searchParams.get("userId") || undefined;
+
+  try {
+    const priceId = resolvePriceId(priceIdParam, plan || undefined);
+    if (!allowedSet.has(priceId));
+    const session = await createSession(priceId, userId);
+    return NextResponse.redirect(session.url, 302);
+  } catch (err: any) {
+    return new NextResponse(String(err?.message || err), { status: 500 });
+  }
+}

@@ -1,0 +1,99 @@
+"use client";
+import useSWR from "swr";
+import Link from "next/link";
+
+type Questionnaire = {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  visibility: "PUBLIC" | "LOGGED_IN" | "PLAN_GATED";
+  requiredPlans: string;
+  priority?: number | null;
+};
+
+const fetcher = (u: string) => fetch(u).then(r => { if(!r.ok) throw new Error("Failed"); return r.json(); });
+
+function PlanBadge({ v, plans }: { v: Questionnaire["visibility"]; plans: string }) {
+  const label = v === "PUBLIC" ? "Public" : v === "LOGGED_IN" ? "Members" : (plans?.split(",")[0] || "Members");
+  return <span className="px-2.5 py-1 rounded-xl text-xs font-medium bg-blue-500/15 text-blue-200 ring-1 ring-blue-400/30">{label}</span>;
+}
+
+const shades: Record<string,string> = {
+  "Core Profile":   "bg-white/30 hover:bg-white/40 text-gray-900 ring-gray-300/80",
+  "Medical":        "bg-emerald-100/60 hover:bg-emerald-100 text-emerald-900 ring-emerald-300/80",
+  "Lifestyle":      "bg-indigo-100/60 hover:bg-indigo-100 text-indigo-900 ring-indigo-300/80",
+  "Women's Health": "bg-pink-100/60 hover:bg-pink-100 text-pink-900 ring-pink-300/80",
+  "Men's Health":   "bg-cyan-100/60 hover:bg-cyan-100 text-cyan-900 ring-cyan-300/80",
+  "General Sexual Longevity & Anti-Aging":  "bg-fuchsia-100/60 hover:bg-fuchsia-100 text-fuchsia-900 ring-fuchsia-300/80",
+  "Longevity & Anti-Aging":      "bg-amber-100/60 hover:bg-amber-100 text-amber-900 ring-amber-300/80",
+  "General":        "bg-white/30 hover:bg-white/40 text-gray-900 ring-gray-300/80",
+};
+
+export default function Page() {
+  const { data, error } = useSWR<Questionnaire[]>("/api/questionnaires", fetcher);
+  if (error) return <div className="p-6">Failed to load.</div>;
+  const list = data ?? [];
+
+  const byKey = new Map<string, Questionnaire>();
+  for (const q of list) {
+    const key = (q.title || q.slug).trim().toLowerCase();
+    const prev = byKey.get(key);
+    if (!prev) byKey.set(key, q);
+    else if ((q.priority ?? 999) < (prev.priority ?? 999)) byKey.set(key, q);
+  }
+
+  const items = Array.from(byKey.values()).sort((a,b)=> (a.priority??999)-(b.priority??999) || a.title.localeCompare(b.title));
+
+  const grouped = items.reduce<Record<string, Questionnaire[]>>((acc, q) => {
+    const cat = q.category || "General";
+    (acc[cat] ||= []).push(q);
+    return acc;
+  }, {});
+
+  const order = ["Core Profile","Medical","Lifestyle","Men's Health","Women's Health","General Sexual Longevity & Anti-Aging","Longevity & Anti-Aging","General"];
+  const cats = Object.keys(grouped).sort((a,b)=> {
+    const ia=order.indexOf(a), ib=order.indexOf(b);
+    return (ia===-1?999:ia)-(ib===-1?999:ib) || a.localeCompare(b);
+  });
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
+      <div className="flex items-baseline justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Questionnaires</h1>
+          
+        </div>
+      </div>
+
+      {cats.length === 0 ? (
+        <p className="text-gray-500">No questionnaires available.</p>
+      ) : (
+        cats.map((category) => (
+          <section key={category} className="space-y-4">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-medium">{category}</h2>
+              <span className="text-xs text-gray-500">{grouped[category].length}</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              {grouped[category].map((q) => (
+                <Link
+                  key={q.id}
+                  href={`/member-zone/questionnaires/${q.slug}`}
+                  className={`rounded-2xl ring-1 transition block p-5 ${shades[category] || shades["General"]}`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-semibold">{q.title}</h3>
+                    <PlanBadge v={q.visibility} plans={q.requiredPlans} />
+                  </div>
+                  {q.description && <p className="text-sm mt-2 opacity-80 line-clamp-3">{q.description}</p>}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+    </div>
+  );
+}

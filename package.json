@@ -16,7 +16,8 @@
     "dev:fast": "NEXT_DISABLE_ESLINT=1 next dev",
     "smoke": "bash scripts/smoke.sh",
     "smoke:dev": "bash scripts/dev-smoke.sh",
-    "seed:q": "tsx prisma/seed.questionnaires.ts"
+    "seed:q": "tsx prisma/seed.questionnaires.ts",
+    "env:apply:local": "node scripts/env-from-secrets.js .env.local"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+
+
+const _p = (x?: string | null) => (typeof x === "string" ? x.trim() : "");
+const allowedValues = [
+  _p(process.env.NEXT_PUBLIC_STRIPE_CORE_MONTHLY || ""),
+  _p(process.env.NEXT_PUBLIC_STRIPE_CORE_YEARLY || ""),
+  _p(process.env.NEXT_PUBLIC_STRIPE_DAILY_MONTHLY || ""),
+  _p(process.env.NEXT_PUBLIC_STRIPE_DAILY_YEARLY || ""),
+  _p(process.env.NEXT_PUBLIC_STRIPE_MAX_MONTHLY || ""),
+  _p(process.env.NEXT_PUBLIC_STRIPE_MAX_YEARLY || ""),
+].filter(v => v.length > 0);
+const allowedSet = new Set(allowedValues);
+console.log("[STRIPE][checkout] allowed =", allowedValues);
 import Stripe from "stripe";
 
 function resolvePriceId(inputPriceId?: string, plan?: string): string | null {
   if (inputPriceId && inputPriceId.startsWith("price_")) return inputPriceId;
   const env = process.env;
   const map: Record<string,string|undefined> = {
-    core_monthly: env.NEXT_PUBLIC_STRIPE_PRICE_CORE_MONTHLY,
-    core_yearly: env.NEXT_PUBLIC_STRIPE_PRICE_CORE_YEARLY,
-    daily_monthly: env.NEXT_PUBLIC_STRIPE_DAILY_MONTHLY,
-    daily_yearly: env.NEXT_PUBLIC_STRIPE_DAILY_YEARLY,
-    max_monthly: env.NEXT_PUBLIC_STRIPE_MAX_MONTHLY,
-    max_yearly: env.NEXT_PUBLIC_STRIPE_MAX_YEARLY
+    core_monthly: process.env.NEXT_PUBLIC_STRIPE_CORE_MONTHLY,
+    core_yearly: process.env.NEXT_PUBLIC_STRIPE_CORE_YEARLY,
+    daily_monthly: process.env.NEXT_PUBLIC_STRIPE_DAILY_MONTHLY,
+    daily_yearly: process.env.NEXT_PUBLIC_STRIPE_DAILY_YEARLY,
+    max_monthly: process.env.NEXT_PUBLIC_STRIPE_MAX_MONTHLY,
+    max_yearly: process.env.NEXT_PUBLIC_STRIPE_MAX_YEARLY
   };
   if (plan && map[plan]) return map[plan] as string;
   for (const k of Object.values(map)) { if (k && k.startsWith("price_")) return k; }
@@ -26,7 +39,7 @@ async function createSession(priceId: string, userId?: string) {
   try {
     await stripe.prices.retrieve(priceId);
   } catch {
-    throw new Error(`Stripe price not found: ${priceId}`);
+    console.error("[STRIPE][checkout] reject priceId=", priceId); console.error("[STRIPE][checkout] reject priceId=", priceId); console.error("[STRIPE][checkout] price hex:", priceId ? _hex(priceId) : ""); for (const v of allowedValues){ console.error("  allowed v:", v, "hex:", _hex(v), "eq:", v===priceId); } throw new Error(`Stripe price not found: ${priceId}`);
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -48,7 +61,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const priceId = resolvePriceId(body?.priceId, body?.plan);
     const userId = body?.userId as string | undefined;
-    if (!priceId) return NextResponse.json({ error: "No valid priceId resolved" }, { status: 400 });
+    if (!allowedSet.has(priceId));
 
     const session = await createSession(priceId, userId);
 
@@ -79,7 +92,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const priceId = resolvePriceId(priceIdParam, plan || undefined);
-    if (!priceId) return new NextResponse("No valid priceId resolved", { status: 400 });
+    if (!allowedSet.has(priceId));
     const session = await createSession(priceId, userId);
     return NextResponse.redirect(session.url, 302);
   } catch (err: any) {

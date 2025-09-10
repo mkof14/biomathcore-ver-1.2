@@ -1,4 +1,43 @@
+import React from "react";
 import LegalNote from "@/components/legal/LegalNote";
-export const dynamic = "force-dynamic"; export default function TermsPage() { return ( <main className="container mx-auto max-w-4xl px-6 py-12 text-gray-900 dark:text-gray-100 leading-relaxed legal-content not- not-prose"> <h1 className="text-3xl font-bold mb-6">Terms of Service</h1> <p className="text-gray-800 dark:text-gray-200 mb-6"> Last updated: {new Date().toISOString().slice(0,10)} </p> <section className="space-y-4"> <p> By accessing or using BioMath Core, you agree to these Terms of Service. If you do not agree, do not use the Service. </p> <h2 className="text-xl font-semibold mt-8 mb-2">1. Description of Service</h2> <p> BioMath Core provides wellness analytics, tracking tools, and educational AI chat. It is <strong>not</strong> a medical service and does not provide diagnosis or treatment. </p> <h2 className="text-xl font-semibold mt-8 mb-2">2. Eligibility</h2> <p> You must be legally capable to form a binding contract in your jurisdiction. </p> <h2 className="text-xl font-semibold mt-8 mb-2">3. Accounts</h2> <p> You are responsible for safeguarding your account credentials and for all activity under your account. </p> <h2 className="text-xl font-semibold mt-8 mb-2">4. Acceptable Use</h2> <p> Do not misuse the Service, attempt to access it without authorization, or use it in violation of applicable law. </p> <h2 className="text-xl font-semibold mt-8 mb-2">5. Intellectual Property</h2> <p> The Service and its contents are owned by BioMath Core or its licensors and protected by law. </p> <h2 className="text-xl font-semibold mt-8 mb-2">6. Disclaimers</h2> <p> The Service is provided “as is” without warranties of any kind. BioMath Core disclaims all implied warranties to the fullest extent permitted by law. </p> <h2 className="text-xl font-semibold mt-8 mb-2">7. Limitation of Liability</h2> <p> To the maximum extent permitted by law, BioMath Core shall not be liable for indirect, incidental, special, consequential, or punitive damages. </p> <h2 className="text-xl font-semibold mt-8 mb-2">8. Changes</h2> <p> We may update these Terms from time to time. The updated date will be posted at the top of this page. </p> <h2 className="text-xl font-semibold mt-8 mb-2">9. Contact</h2> <p> legal@biomathcore.com </p> </section> <div className="mt-12 pt-4 border-t text-sm text-gray-800 dark:text-gray-200"> © {new Date().getFullYear()} BioMath Core. All rights reserved. </div> <p className="mt-8 text-xs text-gray-900">Important Note: BioMath Core is not a medical service and does not provide medical advice. Always consult with a qualified healthcare professional for any health concerns or conditions.</p> <LegalNote />
-</main> );
+
+export const metadata = { title: "Terms of Service • BioMath Core" };
+
+export default function TermsPage() {
+  return (
+    <div className="legal-content text-gray-900 dark:text-gray-100 leading-relaxed">
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        <h1 className="text-4xl font-extrabold mb-6">Terms of Service</h1>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Acceptance</h2>
+        <p className="mb-4">By using the platform you agree to these Terms and our Privacy Policy.</p>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Accounts</h2>
+        <ul className="list-disc ml-6 space-y-1">
+          <li>Provide accurate information and safeguard credentials.</li>
+          <li>You are responsible for activities under your account.</li>
+        </ul>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Use of Services</h2>
+        <ul className="list-disc ml-6 space-y-1">
+          <li>No unlawful, harmful, or abusive activity.</li>
+          <li>No reverse engineering or interference with the service.</li>
+        </ul>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Subscriptions & Billing</h2>
+        <p className="mb-4">Recurring charges are processed by our payment provider. You may cancel according to your plan terms.</p>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Disclaimers</h2>
+        <p className="mb-4">Services are provided “as is” without warranties. To the extent permitted by law, our liability is limited.</p>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Changes</h2>
+        <p className="mb-4">We may update these Terms. Continued use means acceptance of changes.</p>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">Contact</h2>
+        <p className="mb-4">info@biomathcore.com</p>
+
+        <LegalNote>Note: These Terms summarize key rules for service use. Specific product terms may apply to certain features.</LegalNote>
+      </div>
+    </div>
+  );
 }

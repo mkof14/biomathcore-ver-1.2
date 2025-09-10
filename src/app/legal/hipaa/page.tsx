@@ -1,4 +1,34 @@
+import React from "react";
 import LegalNote from "@/components/legal/LegalNote";
-export const dynamic = "force-dynamic"; export default function HipaaPage() { return ( <main className="container mx-auto max-w-4xl px-6 py-12 text-gray-900 dark:text-gray-100 leading-relaxed legal-content not- not-prose"> <h1 className="text-3xl font-bold mb-6">HIPAA Notice</h1> <p className="text-gray-800 dark:text-gray-200 mb-6"> Last updated: {new Date().toISOString().slice(0,10)} </p> <section className="space-y-4"> <p> BioMath Core is <strong>not</strong> a HIPAA “covered entity” or “business associate.” Our consumer wellness platform is not intended to store or transmit Protected Health Information (PHI) on behalf of covered entities. Do not upload PHI unless you have the legal right and appropriate agreements in place. </p> <h2 className="text-xl font-semibold mt-8 mb-2">What this means</h2> <ul className="list-disc pl-6 space-y-1"> <li>We operate as a consumer wellness/analytics product, not as a healthcare provider or insurer.</li> <li>HIPAA generally does not apply to the data you provide directly to BioMath Core for personal use.</li> <li>If you integrate data from a HIPAA-covered provider, ensure you are legally permitted to share it.</li> </ul> <h2 className="text-xl font-semibold mt-8 mb-2">Our commitments</h2> <ul className="list-disc pl-6 space-y-1"> <li>We apply strong security safeguards and privacy controls to protect your information.</li> <li>We do not sell your personal information.</li> <li>See our <a className="underline text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200 text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-200" href="/legal/privacy">Privacy Policy</a> for details on collection and use.</li> </ul> <h2 className="text-xl font-semibold mt-8 mb-2">Contact</h2> <p>privacy@biomathcore.com</p> </section> <div className="mt-12 pt-4 border-t text-sm text-gray-800 dark:text-gray-200"> © {new Date().getFullYear()} BioMath Core. All rights reserved. </div> <p className="mt-8 text-xs text-gray-900">Important Note: BioMath Core is not a medical service and does not provide medical advice. Always consult with a qualified healthcare professional for any health concerns or conditions.</p> <LegalNote />
-</main> );
+
+export const metadata = { title: "HIPAA Notice • BioMath Core" };
+
+export default function HipaaPage() {
+  return (
+    <div className="legal-content text-gray-900 dark:text-gray-100 leading-relaxed">
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        <h1 className="text-4xl font-extrabold mb-6">HIPAA Notice</h1>
+
+        <p className="mb-4">
+          BioMath Core is a wellness platform and is not a covered entity or business associate under HIPAA in most contexts.
+          If HIPAA applies to a particular integration or program, we implement appropriate safeguards and agreements.
+        </p>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">PHI Handling</h2>
+        <ul className="list-disc ml-6 space-y-1">
+          <li>Limited collection of PHI where explicitly enabled.</li>
+          <li>Secure storage and access controls.</li>
+          <li>Incident response and breach notifications as required.</li>
+        </ul>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">User Responsibilities</h2>
+        <ul className="list-disc ml-6 space-y-1">
+          <li>Do not upload sensitive medical data unless necessary and permitted.</li>
+          <li>Review provider agreements when connecting third-party services.</li>
+        </ul>
+
+        <LegalNote>Note: This page provides general information and is not legal advice. Coverage may vary by integration and program.</LegalNote>
+      </div>
+    </div>
+  );
 }

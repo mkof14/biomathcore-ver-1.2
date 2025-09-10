@@ -37,3 +37,21 @@ npx prisma migrate status
 nc -vz 192.168.1.134 55432
 npx prisma migrate reset --force
 npx prisma migrate deploy
+
+## Fixing Docker "permission denied"
+
+If you see:
+`docker: permission denied while trying to connect to the Docker daemon socket`
+
+### On Linux
+sudo groupadd docker || true
+sudo usermod -aG docker $USER
+newgrp docker
+docker ps   # should work without sudo
+
+Log out and back in if needed.
+
+### On macOS / Windows
+Install Docker Desktop and make sure it is running.
+Then check:
+docker ps

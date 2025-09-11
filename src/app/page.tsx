@@ -256,7 +256,7 @@ export default async function HomePage() {
   // For server environments without NEXT_PUBLIC_BASE_URL, fall back to relative fetch
   if (!process.env.NEXT_PUBLIC_BASE_URL) {
     // Relative fetch variant
-    const res = await fetch("/api/categories", { next: { revalidate: 300 } });
+    const res = await fetch("http://localhost:3003/api/categories", { next: { revalidate: 300 } });
     if (!res.ok) throw new Error("Failed to fetch categories");
     const data: { ok: boolean; categories?: CategoryApi[] } = await res.json();
     const categories = (data.categories ?? []).map((r) => {

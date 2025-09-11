@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 // src/app/member-zone/subscriptions/page.tsx
 import React, { useState } from "react";
 import { useSubscription } from "@/hooks/useSubscription";

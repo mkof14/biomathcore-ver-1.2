@@ -21,3 +21,5 @@ export async function GET(){
   const text=await r.text().catch(()=> "");
   return NextResponse.json({status:r.status,ok:r.ok,body:text}, {status:200});
 }
+
+export {};

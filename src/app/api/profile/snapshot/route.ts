@@ -29,3 +29,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok:false, error: e.message }, { status: 400 });
   }
 }
+
+export {};

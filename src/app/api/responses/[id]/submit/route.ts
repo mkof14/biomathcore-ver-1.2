@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 type Params = { params: { id: string } };
 
 export async function POST(_req: Request, { params }: Params) {
-  const id = params.id;
+  const id = id;
   if (!id) return NextResponse.json({ ok:false, error:"Missing id" }, { status:400 });
 
   const session = await prisma.responseSession.findUnique({
@@ -32,3 +32,4 @@ export async function POST(_req: Request, { params }: Params) {
 
   return NextResponse.json({ ok:true, id: updated.id, status: updated.status, submittedAt: updated.submittedAt });
 }
+export {};

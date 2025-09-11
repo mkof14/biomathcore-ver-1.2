@@ -1,4 +1,3 @@
-// src/app/api/providers/route.ts
 import { NextResponse } from "next/server";
 import { PROVIDERS } from "./_data";
 
@@ -25,3 +24,5 @@ export async function GET() {
     );
   }
 }
+
+export {};

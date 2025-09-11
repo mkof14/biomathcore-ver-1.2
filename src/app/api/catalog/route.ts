@@ -42,3 +42,5 @@ export async function GET() {
 
   return NextResponse.json({ categories, services: servicesWithFlag });
 }
+
+export {};

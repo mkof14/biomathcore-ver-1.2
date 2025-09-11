@@ -40,4 +40,4 @@ export function requireAuthRedirectURL() {
 
 export async function getSession() {
   return getServerSession(authOptions);
-}
+}export async function getServerSessionSafe(){ return null }

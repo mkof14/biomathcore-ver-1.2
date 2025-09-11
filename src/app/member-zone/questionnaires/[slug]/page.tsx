@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import QuestionnaireForm from "@/components/questionnaires/QuestionnaireForm";
 import { notFound, redirect } from "next/navigation";
 import { headers, cookies } from "next/headers";

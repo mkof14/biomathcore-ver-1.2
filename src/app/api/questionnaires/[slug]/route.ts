@@ -37,3 +37,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export {};

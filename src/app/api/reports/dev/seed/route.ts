@@ -12,3 +12,5 @@ export const POST = withLog(async () => {
   for (const s of samples) await createReport(s as any);
   return NextResponse.json({ ok:true, created: samples.length });
 }, "reports.dev.seed");
+
+export {};

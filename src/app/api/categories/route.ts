@@ -1,4 +1,3 @@
-// src/app/api/categories/route.ts
 import { NextResponse } from "next/server";
 import allCategories from "@/components/data/allCategories";
 import { slugify } from "@/lib/slug";
@@ -27,3 +26,5 @@ export async function GET() {
     { status: 200, headers: { "cache-control": "public, max-age=300" } },
   );
 }
+
+export {};

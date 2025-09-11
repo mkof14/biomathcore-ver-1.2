@@ -5,3 +5,5 @@ export async function GET() {
   try { rev = execSync('git rev-parse --short HEAD').toString().trim(); } catch {}
   return NextResponse.json({ rev, cwd: process.cwd(), time: new Date().toISOString() });
 }
+
+export {};

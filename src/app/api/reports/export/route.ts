@@ -1,4 +1,3 @@
-// @ts-nocheck
 import JSZip from "jszip";
 import { Parser as Json2Csv } from "@json2csv/plainjs";
 import { listReports } from "@/lib/repos/reportRepo";
@@ -6,6 +5,20 @@ import { listReports } from "@/lib/repos/reportRepo";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const url = new URL(req.url);
   const id = url.searchParams.get("id") || undefined;
   const q = url.searchParams.get("q") || undefined;
@@ -32,3 +45,5 @@ export async function GET(req: Request) {
     },
   });
 }
+
+export {};

@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 // src/app/sign-up/page.tsx
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";

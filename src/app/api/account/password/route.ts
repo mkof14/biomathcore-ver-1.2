@@ -59,3 +59,5 @@ export async function POST(req: NextRequest) {
 
   return ok({ ok: true });
 }
+
+export {};

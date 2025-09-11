@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const { id } = await ctx.params;
+/* removed legacy ctx.params destructure */
   const s = await prisma.responseSession.findUnique({
     where: { id },
     include: {
@@ -38,3 +38,5 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     }
   });
 }
+
+export {};

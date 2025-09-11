@@ -1,4 +1,3 @@
-// File: PLACEHOLDER
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ok, bad } from "@/lib/apiResponse";
@@ -28,3 +27,5 @@ export async function DELETE(
   await prisma.device.delete({ where: { id } });
   return ok({ deleted: true });
 }
+
+export {};

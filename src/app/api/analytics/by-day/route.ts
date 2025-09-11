@@ -17,6 +17,20 @@ function bucket(items:any[], field:string) {
 }
 
 export async function GET(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   try {
     const url = new URL(req.url);
     const days = Math.max(7, Math.min(90, parseInt(url.searchParams.get("days") || "30", 10)));
@@ -33,10 +47,8 @@ export async function GET(req: Request) {
 
     const out:any[] = [];
     const now = new Date();
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(now.getDate() - i);
-      const key = d.toISOString().slice(0,10);
+    for (let i = days - 1; i >= 0; i--) {      d.setDate(now.getDate() - i);
+
       out.push({
         date: key,
         ai: mAI.get(key) ?? 0,
@@ -50,3 +62,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok:false, error:e?.message || "failed" }, { status: 500 });
   }
 }
+
+export {};

@@ -5,6 +5,20 @@ function key() { return process.env.ELEVENLABS_API_KEY || ""; }
 function voice() { return process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"; } // Rachel
 
 export async function POST(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   try {
     const k = key();
     if (!k) return new NextResponse("Missing ELEVENLABS_API_KEY", { status: 401 });
@@ -36,3 +50,5 @@ export async function POST(req: Request) {
     return new NextResponse(`Server error: ${e?.message || "unknown"}`, { status: 500 });
   }
 }
+
+export {};

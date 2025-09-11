@@ -4,3 +4,5 @@ export async function POST() {
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 }
+
+export {};

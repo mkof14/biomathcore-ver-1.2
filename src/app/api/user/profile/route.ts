@@ -23,6 +23,20 @@ function getUserIdFromCookie(req: Request): string {
 }
 
 export async function GET(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const userId = getUserIdFromCookie(req);
   const existing: Profile | undefined = g.__PROFILE_STORE__.get(userId);
   if (existing) return NextResponse.json({ ok: true, data: existing });
@@ -39,7 +53,19 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const userId = getUserIdFromCookie(req);
+/* params preamble */
+
+
+
+
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
   const body = await req.json().catch(() => ({}));
   if (!body || typeof body !== "object") {
     return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
@@ -64,3 +90,5 @@ export async function PATCH(req: Request) {
   g.__PROFILE_STORE__.set(userId, next);
   return NextResponse.json({ ok: true, data: next });
 }
+
+export {};

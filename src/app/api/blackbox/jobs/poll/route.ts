@@ -1,8 +1,21 @@
-// @ts-nocheck
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id") || "";
@@ -27,3 +40,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok:false, error:"POLL_FAILED" }, { status: 500 });
   }
 }
+
+export {};

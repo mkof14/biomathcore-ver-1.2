@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 /**
  * Member Zone — Theme Preferences page
  * Lightweight wrapper around the ThemePreferences component.

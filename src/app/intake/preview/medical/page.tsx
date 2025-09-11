@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import FormRenderer from "@/components/forms/FormRenderer";
 import { QUESTIONNAIRE_REGISTRY } from "@/lib/questionnaire/registry";
 export default function Page() {

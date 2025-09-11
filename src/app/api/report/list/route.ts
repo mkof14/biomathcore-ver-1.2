@@ -5,3 +5,5 @@ export async function GET() {
   const items = await listReports();
   return NextResponse.json(items.map(i => ({ id: i.id, title: i.title, type: i.type, createdAt: i.createdAt })));
 }
+
+export {};

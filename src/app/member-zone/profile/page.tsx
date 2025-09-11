@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import { useEffect, useState } from "react";
 type Profile = { id: string; email: string; name: string };
 export default function ProfilePage() {

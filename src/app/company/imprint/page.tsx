@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 export default function Imprint() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 prose prose-neutral dark:prose-invert">

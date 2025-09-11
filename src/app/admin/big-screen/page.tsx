@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React from "react";
 import BigStat from "@/components/admin/BigStat";
 import Sparkline from "@/components/admin/Sparkline";

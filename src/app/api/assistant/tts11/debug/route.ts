@@ -13,3 +13,5 @@ export async function GET() {
   const text = buf ? "" : await r.text().catch(()=> "");
   return NextResponse.json({ status: r.status, ok: r.ok, errorText: text.slice(0, 800) }, { status: 200 });
 }
+
+export {};

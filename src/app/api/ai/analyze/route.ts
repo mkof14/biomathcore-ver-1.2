@@ -1,4 +1,3 @@
-// src/app/api/ai/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -74,9 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!openaiRes.ok) {
-      const text = await openaiRes.text().catch(() => "");
-      return NextResponse.json(
+    if (!openaiRes.ok) {      return NextResponse.json(
         {
           error: `OpenAI upstream error: ${openaiRes.status}`,
           details: text?.slice(0, 1000),
@@ -101,3 +98,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export {};

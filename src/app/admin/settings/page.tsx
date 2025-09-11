@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React, { useEffect, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Card, CardHeader, CardTitle, CardBody, Row, Badge } from "@/components/ui/CardToned";

@@ -1,10 +1,9 @@
-// src/app/api/blackbox/jobs/[id]/route.ts
 import { NextResponse } from "next/server";
 import { getJob } from "@/lib/blackbox/jobs";
 
 export async function GET(_req: Request, ctx: { params: { id: string } }) {
   try {
-    const job = getJob(ctx.params.id);
+    const job = getJob(id);
     if (!job) {
       return NextResponse.json(
         { ok: false, error: "NOT_FOUND" },
@@ -19,3 +18,5 @@ export async function GET(_req: Request, ctx: { params: { id: string } }) {
     );
   }
 }
+
+export {};

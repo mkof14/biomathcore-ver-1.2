@@ -20,3 +20,5 @@ export async function GET() {
   await auditLogOptional(userId, "premium_ping_ok", { tier: guard.tier, status: guard.status });
   return NextResponse.json({ ok: true, tier: guard.tier, status: guard.status });
 }
+
+export {};

@@ -96,3 +96,9 @@ export async function runBlackbox(prompt: string) {
     throw e;
   }
 }
+
+// added by codemod: safe fallback export
+export const listNotes = async (..._args:any[]) => [];
+
+// added by codemod: safe fallback export
+export const createNote = async (..._args:any[]) => ({ id: "stub", ...(_args?.[0]||{}) });

@@ -10,3 +10,5 @@ export async function POST(req: NextRequest) {
   res.cookies.set("admin_sudo", "1", { httpOnly: true, sameSite: "lax", path: "/", secure: true, maxAge: 60*60*8 });
   return res;
 }
+
+export {};

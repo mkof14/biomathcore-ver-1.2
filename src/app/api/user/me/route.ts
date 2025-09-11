@@ -1,4 +1,3 @@
-// src/app/api/user/me/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionSafe } from "@/lib/auth";
@@ -61,3 +60,5 @@ export async function GET() {
     );
   }
 }
+
+export {};

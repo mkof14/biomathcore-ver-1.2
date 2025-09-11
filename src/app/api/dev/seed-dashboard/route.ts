@@ -18,3 +18,5 @@ export async function POST() {
   ]);
   return NextResponse.json({ ok:true, inserted: { ai:a.length, voice:v.length, drugGene:d.length }});
 }
+
+export {};

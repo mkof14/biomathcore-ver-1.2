@@ -7,3 +7,5 @@ export async function GET() {
     BASE_URL: env.NEXT_PUBLIC_BASE_URL || null
   });
 }
+
+export {};

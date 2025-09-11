@@ -115,3 +115,9 @@ export async function seedDG(n = 5): Promise<number> {
   return mem().size;
 }
 export async function resetDG(): Promise<void> { mem().clear(); }
+
+// added by codemod: safe fallback export
+export const listDrugGene = async (..._args:any[]) => [];
+
+// added by codemod: safe fallback export
+export const createDrugGene = async (..._args:any[]) => ({ id: "stub", ...(_args?.[0]||{}) });

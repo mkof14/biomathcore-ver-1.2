@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 // src/app/services/[slug]/page.tsx
 import Link from "next/link";
 import Image from "next/image";

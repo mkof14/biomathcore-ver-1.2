@@ -4,15 +4,22 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-/** Matches /api/admin/backup/* e.g. /api/admin/backup/secrets */
-export async function GET(req: Request, ctx: { params: { slug?: string[] } }) {
-  const slug = ctx.params.slug || [];
+/**
+ * GET /api/admin/backup           -> hint
+ * GET /api/admin/backup/secrets   -> download var/secrets.json (or empty)
+ */
+export async function GET(req: Request) {
+  const { pathname } = new URL(req.url);
+  const parts = pathname.split("/").filter(Boolean);          // ["api","admin","backup", ...]
+  const apiIdx = parts.findIndex((p) => p === "api");
+  const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts; // ["admin","backup", ...]
+  const idx = base.findIndex((p) => p === "backup");
+  const slug = idx >= 0 ? base.slice(idx + 1) : [];
 
-  // /api/admin/backup/secrets
   if (slug.length === 1 && slug[0] === "secrets") {
-    const p = path.join(process.cwd(), "var", "secrets.json");
+    const filePath = path.join(process.cwd(), "var", "secrets.json");
     try {
-      const txt = await fs.readFile(p, "utf8");
+      const txt = await fs.readFile(filePath, "utf8");
       return new NextResponse(txt, {
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -32,7 +39,6 @@ export async function GET(req: Request, ctx: { params: { slug?: string[] } }) {
     }
   }
 
-  // Root hint: /api/admin/backup
   if (slug.length === 0) {
     return NextResponse.json({
       ok: true,

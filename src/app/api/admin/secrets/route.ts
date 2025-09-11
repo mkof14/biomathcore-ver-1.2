@@ -21,9 +21,7 @@ export async function GET() {
  *  Создать/обновить секрет.
  *  Body: { key: string, value: string }
  */
-export async function POST(req: NextRequest) {
-  const mgr = getSecretsManager();
-  const body = await req.json().catch(() => ({}));
+export async function POST(req: NextRequest) {  const body = await req.json().catch(() => ({}));
   const key = String(body.key || "");
   const value = String(body.value || "");
   if (!key || !value) return NextResponse.json({ error: "key and value required" }, { status: 400 });
@@ -37,10 +35,10 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   const mgr = getSecretsManager();
-  const { searchParams } = new URL(req.url);
-  const key = searchParams.get("key") || "";
-  if (!key) return NextResponse.json({ error: "key required" }, { status: 400 });
+  const { searchParams } = new URL(req.url);  if (!key) return NextResponse.json({ error: "key required" }, { status: 400 });
   await mgr.delete(key);
   await writeAudit({ kind: "secret_delete", key });
   return NextResponse.json({ ok: true });
 }
+
+export {};

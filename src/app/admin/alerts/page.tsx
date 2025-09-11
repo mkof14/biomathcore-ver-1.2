@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React from "react";
 import SectionHeader from "@/components/SectionHeader";
 import { Panel } from "@/components/admin/NasaUI";

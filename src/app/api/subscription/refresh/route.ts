@@ -1,4 +1,3 @@
-// src/app/api/subscription/refresh/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
@@ -10,6 +9,20 @@ function bad(status: number, error: string) {
 }
 
 export async function POST(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const adminToken = req.headers.get("x-admin-token");
   if (
     !process.env.ADMIN_API_TOKEN ||
@@ -86,9 +99,7 @@ export async function POST(req: Request) {
         customer: customer.id,
         limit: 1,
         status: "all",
-      });
-      const sub = subs.data[0];
-      if (!sub) return bad(404, "SUBSCRIPTION_NOT_FOUND");
+      });      if (!sub) return bad(404, "SUBSCRIPTION_NOT_FOUND");
 
       const user = await prisma.user.upsert({
         where: { email: emailLc },
@@ -130,3 +141,5 @@ export async function POST(req: Request) {
     return bad(500, e?.message || "SERVER_ERROR");
   }
 }
+
+export {};

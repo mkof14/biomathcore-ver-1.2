@@ -7,3 +7,5 @@ export const POST = withLog(async () => {
   await resetReports?.();
   return NextResponse.json({ ok:true, reset:true });
 }, "reports.dev.reset");
+
+export {};

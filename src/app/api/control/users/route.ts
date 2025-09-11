@@ -18,3 +18,5 @@ export async function GET() {
     return NextResponse.json({ error: e?.message ?? "users_error" }, { status: 500 });
   }
 }
+
+export {};

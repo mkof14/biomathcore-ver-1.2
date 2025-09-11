@@ -23,7 +23,19 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -44,12 +56,24 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+/* params preamble */
+
+
+
+
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id"); // categoryId
@@ -61,3 +85,5 @@ export async function DELETE(req: Request) {
 
   return NextResponse.json({ ok: true, deleted: res.count, scope: id ? "one" : "all" });
 }
+
+export {};

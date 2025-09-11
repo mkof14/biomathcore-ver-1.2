@@ -30,3 +30,5 @@ export async function GET() {
     results
   }, { status: 200 });
 }
+
+export {};

@@ -1,4 +1,3 @@
-// src/app/api/me/subscription/route.ts
 import { NextResponse } from "next/server";
 
 /**
@@ -15,3 +14,5 @@ export async function GET(request: Request) {
     planTier: mock,
   });
 }
+
+export {};

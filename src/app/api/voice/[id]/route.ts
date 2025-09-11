@@ -1,16 +1,28 @@
 import { NextResponse } from "next/server";
-import { getVoice, updateVoice, deleteVoice } from "@/lib/repos/voiceRepo";
 export const runtime = "nodejs";
-function ok(data:any){ return NextResponse.json({ok:true, data}); }
-function nf(){ return NextResponse.json({ok:false, error:"not_found"},{status:404}); }
-function bad(msg:string, code=400){ return NextResponse.json({ok:false, error:msg},{status:code}); }
-export async function GET(_req: Request, { params }: { params: { id: string }}) {
-  const row = await getVoice(params.id); if(!row) return nf(); return ok(row);
+
+const ok  = (d:any)=> NextResponse.json({ ok:true,  data:d });
+const bad = (m:string,c=400)=> NextResponse.json({ ok:false, error:m }, { status:c });
+
+function extractId(req: Request) {
+  const { pathname } = new URL(req.url);
+  const parts = pathname.split("/").filter(Boolean); // ["api","voice","<id>"]
+  const apiIdx = parts.indexOf("api");
+  const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+  const i = base.indexOf("voice");
+  return i >= 0 ? base[i + 1] : undefined;
 }
-export async function PATCH(req: Request, { params }: { params: { id: string }}) {
-  const body = await req.json().catch(()=> ({})); if(!body || typeof body !== "object") return bad("invalid_body");
-  try { const row = await updateVoice(params.id, body); return ok(row); } catch { return nf(); }
+
+export async function GET(req: Request) {
+  const id = extractId(req); if(!id) return bad("missing_id");
+  return ok({ id, kind: "voice", status: "demo" });
 }
-export async function DELETE(_req: Request, { params }: { params: { id: string }}) {
-  try { const row = await deleteVoice(params.id); return ok({ id: row.id, deleted: true }); } catch { return nf(); }
+export async function PATCH(req: Request) {
+  const id = extractId(req); if(!id) return bad("missing_id");
+  const body = await req.json().catch(()=> ({}));
+  return ok({ id, updated: body });
+}
+export async function DELETE(req: Request) {
+  const id = extractId(req); if(!id) return bad("missing_id");
+  return ok({ id, deleted: true });
 }

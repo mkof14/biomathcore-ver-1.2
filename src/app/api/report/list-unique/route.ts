@@ -26,3 +26,5 @@ export async function GET() {
   }
   return NextResponse.json(Array.from(pick.values()).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||""))));
 }
+
+export {};

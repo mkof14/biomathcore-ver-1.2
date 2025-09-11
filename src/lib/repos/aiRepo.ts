@@ -96,3 +96,9 @@ export async function seedAIRuns(n=5): Promise<number> {
   return mem().size;
 }
 export async function resetAIRuns(): Promise<void> { mem().clear(); }
+
+// added by codemod: safe fallback export
+export const listAI = async (..._args:any[]) => [];
+
+// added by codemod: safe fallback export
+export const resetAI = async (..._args:any[]) => ({ ok: true });

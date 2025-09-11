@@ -105,3 +105,7 @@ export async function seedVoice(n = 3): Promise<number> {
 export async function resetVoice(): Promise<void> {
   mem().clear();
 }
+export async function createVoiceRun(){ return null }
+export async function resetVoiceRuns(){ return null }
+export async function listVoiceJobs(){ return [] }
+export async function createVoiceJob(){ return null }

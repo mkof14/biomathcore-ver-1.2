@@ -11,6 +11,20 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   if (!isDevMock(req)) return NextResponse.json({ ok:false, error:"unauthorized" }, { status:401 });
   const body = await req.json().catch(() => ({}));
   const title = typeof body?.title === "string" ? body.title.trim() : "";
@@ -19,3 +33,5 @@ export async function POST(req: Request) {
   const row = await createNote({ title, content });
   return NextResponse.json({ ok: true, data: row }, { headers: { "Cache-Control": "no-store" } });
 }
+
+export {};

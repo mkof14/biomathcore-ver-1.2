@@ -7,3 +7,5 @@ export async function POST() {
   await Promise.all([resetAI(), resetVoice(), resetDG()]);
   return Response.json({ ok:true });
 }
+
+export {};

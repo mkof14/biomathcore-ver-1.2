@@ -48,3 +48,5 @@ export async function PATCH(req: NextRequest) {
 
   return ok({ ok: true, user });
 }
+
+export {};

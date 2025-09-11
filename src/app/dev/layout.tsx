@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 export const metadata = { title: "Developer Demos" };
 export default function DevLayout({ children }: { children: React.ReactNode }) {
   return (

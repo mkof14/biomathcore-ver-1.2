@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import { notFound } from "next/navigation";
 import allCategories from "@/components/data/allCategories";
 import BackToServices from "@/components/ui/BackToServices";

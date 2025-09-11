@@ -1,5 +1,3 @@
-// @ts-nocheck
-// simple 16-bit PCM WAV beep (0.6s, 440Hz)
 export const runtime = "nodejs";
 function wav(bytes: Uint8Array, sampleRate=44100, numChannels=1) {
   const blockAlign = numChannels * 2; // 16-bit
@@ -20,6 +18,20 @@ function wav(bytes: Uint8Array, sampleRate=44100, numChannels=1) {
   return buffer;
 }
 export async function POST(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const body = await req.json().catch(()=>({}));
   const text = String(body?.text ?? "beep");
   const dur = 0.6, sr=44100, hz=440;
@@ -33,3 +45,5 @@ export async function POST(req: Request) {
   const wavBuf = wav(bytes, sr, 1);
   return new Response(wavBuf, { headers:{ "Content-Type":"audio/wav", "Content-Disposition": `inline; filename="tts.wav"`, "X-Text": encodeURIComponent(text) }});
 }
+
+export {};

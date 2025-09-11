@@ -37,3 +37,5 @@ export async function GET() {
 
   return Response.json({ ok:true, data: out }, { headers: { "Cache-Control":"no-store" }});
 }
+
+export {};

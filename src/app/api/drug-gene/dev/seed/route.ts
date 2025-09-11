@@ -12,3 +12,5 @@ export const POST = withLog(async () => {
   for (const s of samples) await createDG(s as any);
   return NextResponse.json({ ok:true, created: samples.length });
 }, "dg.dev.seed");
+
+export {};

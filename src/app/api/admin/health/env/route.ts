@@ -17,3 +17,5 @@ export async function GET() {
   }
   return NextResponse.json({ checkedAt: now, present, missing, total: REQUIRED_ENV.length });
 }
+
+export {};

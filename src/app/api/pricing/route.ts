@@ -85,3 +85,5 @@ export async function GET() {
     categories: items, // legacy alias for UI expecting pricing.categories
   });
 }
+
+export {};

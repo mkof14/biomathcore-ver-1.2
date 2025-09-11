@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import AssistantCore from "@/components/ai/AssistantCore";
 
 export const metadata = { title: "Pulse AI • BioMath Core" };

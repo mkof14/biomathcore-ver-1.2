@@ -14,3 +14,5 @@ export async function DELETE() {
   const res = await prisma.serviceSelection.deleteMany({ where: { userId: user.id } });
   return NextResponse.json({ ok: true, deleted: res.count });
 }
+
+export {};

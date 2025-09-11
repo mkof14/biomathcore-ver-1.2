@@ -4,8 +4,7 @@ import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const { id } = await ctx.params;
-
+/* removed legacy ctx.params destructure */
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,3 +23,5 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
 
   return NextResponse.json(rep);
 }
+
+export {};

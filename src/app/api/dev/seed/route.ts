@@ -23,3 +23,5 @@ export async function POST() {
   await backFill(()=>createDG({ status: "match" }), 18);
   return Response.json({ ok:true });
 }
+
+export {};

@@ -11,6 +11,20 @@ async function ping(url: string) {
 }
 
 export async function GET(req: Request) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
   const o = new URL(req.url).origin;
   const urls = [
     "/api/health/version",
@@ -27,3 +41,5 @@ export async function GET(req: Request) {
   const data = Object.fromEntries(urls.map((p, i) => [p, results[i]]));
   return NextResponse.json({ ok: true, data });
 }
+
+export {};

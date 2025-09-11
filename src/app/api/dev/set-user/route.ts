@@ -8,3 +8,5 @@ export async function POST(req: NextRequest) {
   res.cookies.set("bmc_dev_user", value, { httpOnly: false, sameSite: "lax", path: "/", maxAge: 60*60*24*30 });
   return res;
 }
+
+export {};

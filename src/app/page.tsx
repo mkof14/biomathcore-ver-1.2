@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 // src/app/page.tsx
 import Link from "next/link";
 import type { Metadata } from "next";

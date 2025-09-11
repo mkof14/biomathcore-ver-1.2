@@ -26,7 +26,19 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
   const email = session?.user?.email;
   if (!email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -58,3 +70,5 @@ export async function PUT(req: Request) {
 
   return NextResponse.json({ ok: true, selected });
 }
+
+export {};

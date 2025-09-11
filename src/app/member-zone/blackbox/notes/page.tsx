@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 // src/app/member-zone/blackbox/notes/page.tsx
 import React, { useState } from "react";
 import { useBlackBox } from "@/hooks/useBlackBox";

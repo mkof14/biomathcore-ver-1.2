@@ -1,4 +1,3 @@
-// src/app/api/blackbox/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authHelper } from "@/lib/auth/server";
@@ -42,9 +41,21 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  try {
-    const session = await authHelper();
-    if (!session?.user?.email) {
+/* params preamble */
+const { pathname } = new URL(req.url);
+const parts = pathname.split("/").filter(Boolean);
+const apiIdx = parts.findIndex(p => p === "api");
+const base = apiIdx >= 0 ? parts.slice(apiIdx + 1) : parts;
+/* end preamble */
+
+/* params preamble */
+
+
+
+
+/* end preamble */
+
+  try {    if (!session?.user?.email) {
       return bad(401, "UNAUTHORIZED");
     }
 
@@ -83,3 +94,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export {};

@@ -7,3 +7,5 @@ export async function GET() {
   const stripeMode = stripe.startsWith("sk_live_") ? "live" : stripe.startsWith("sk_test_") ? "test" : "unknown";
   return NextResponse.json({ ok: list.every(([,v]) => v), data: Object.fromEntries(list), stripeMode });
 }
+
+export {};

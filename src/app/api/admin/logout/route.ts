@@ -5,3 +5,5 @@ export async function POST() {
   res.cookies.set("admin_sudo", "", { httpOnly: true, sameSite: "lax", path: "/", secure: true, maxAge: 0 });
   return res;
 }
+
+export {};

@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import Link from "next/link";
 
 function Card({ title, href, subtitle }: { title:string; href:string; subtitle:string }) {

@@ -8,3 +8,5 @@ export async function POST() {
     { status: hasKey ? 200 : 500 }
   );
 }
+
+export {};

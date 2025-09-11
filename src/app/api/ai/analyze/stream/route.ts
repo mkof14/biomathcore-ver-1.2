@@ -1,4 +1,3 @@
-// src/app/api/ai/stream/route.ts
 import { NextRequest } from "next/server";
 
 /**
@@ -139,3 +138,5 @@ export async function POST(req: NextRequest) {
     },
   });
 }
+
+export {};

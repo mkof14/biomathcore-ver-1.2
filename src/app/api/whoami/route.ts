@@ -9,3 +9,5 @@ export async function GET() {
     user: session?.user ?? null,
   });
 }
+
+export {};

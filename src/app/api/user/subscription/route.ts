@@ -29,3 +29,5 @@ export async function GET() {
   } catch {}
   return Response.json({ ok: true, data: mock(), mock: true }, { headers: { "Cache-Control": "no-store" }});
 }
+
+export {};

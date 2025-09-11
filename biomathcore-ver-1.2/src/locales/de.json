@@ -1,5 +1,0 @@
-{
-  "langName": "Deutsch",
-  "forms": { "patient": { "title": "Fragebogen für Patienten" } },
-  "common": { "yes": "Ja", "no": "Nein", "optional": "Optional", "select": "Auswählen…" }
-}

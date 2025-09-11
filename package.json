@@ -17,7 +17,11 @@
     "smoke": "bash scripts/smoke.sh",
     "smoke:dev": "bash scripts/dev-smoke.sh",
     "seed:q": "tsx prisma/seed.questionnaires.ts",
-    "env:apply:local": "node scripts/env-from-secrets.js .env.local"
+    "env:apply:local": "node scripts/env-from-secrets.js .env.local",
+    "db:use:sqlite": "prisma generate --schema=prisma/schema.sqlite.prisma",
+    "db:sqlite:init": "prisma migrate dev --name init_sqlite --schema=prisma/schema.sqlite.prisma && prisma db seed --schema=prisma/schema.sqlite.prisma",
+    "db:sqlite:reset": "prisma migrate reset --force --schema=prisma/schema.sqlite.prisma && prisma db seed --schema=prisma/schema.sqlite.prisma",
+    "db:studio:sqlite": "prisma studio --schema=prisma/schema.sqlite.prisma"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -6,7 +6,7 @@ cd biomathcore-ver-1.2
 git pull origin main
 
 ## Database
-export DATABASE_URL=postgres://biomath:biomathpass@localhost:5432/biomath
+export DATABASE_URL="file:./dev.db"
 npx prisma generate
 npx prisma migrate deploy
 npx prisma migrate status
